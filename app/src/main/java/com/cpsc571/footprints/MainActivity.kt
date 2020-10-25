@@ -83,15 +83,15 @@ class MainActivity : AppCompatActivity() {
             if (task.isSuccessful) {
                 try {
                     val account = task.getResult(ApiException::class.java)!!
-                    Log.d("SingInActivity", "firebaseAuthWithGoogle" + account.id)
+                    Log.d("MainActivity", "firebaseAuthWithGoogle" + account.id)
                     firebaseAuthWithGoogle(account.idToken!!)
                 }
                 catch(e: ApiException) {
-                    Log.w("SingInActivity", "Google sign in failed", e)
+                    Log.w("MainActivity", "Google sign in failed", e)
                 }
             }
             else {
-                Log.w("SingInActivity", exception.toString())
+                Log.w("MainActivity", exception.toString())
             }
         }
     }
@@ -101,14 +101,14 @@ class MainActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
                 .addOnCompleteListener(this) {  task ->
                     if (task.isSuccessful) {
-                        Log.d("SingInActivity", "signInWithCredential:success")
+                        Log.d("MainActivity", "signInWithCredential:success")
                         handleLoading(false)
                         val dashboardIntent = Intent(this, DashboardActivity::class.java)
                         startActivity(dashboardIntent)
                         finish()
                     }
                     else {
-                        Log.w("SingInActivity", "signIntWithCredential:failure", task.exception)
+                        Log.w("MainActivity", "signIntWithCredential:failure", task.exception)
                     }
                 }
     }
