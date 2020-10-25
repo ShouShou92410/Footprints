@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "13310552805",
+    "firebase_url": "https://footprints-a98dc.firebaseio.com",
+    "project_id": "footprints-a98dc",
+    "storage_bucket": "footprints-a98dc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13310552805:android:6e327371b184d7702d820c",
+        "android_client_info": {
+          "package_name": "com.cpsc571.footprints"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "13310552805-k06ac0u21tfe9et3mc04gkjrua61ja70.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cpsc571.footprints",
+            "certificate_hash": "7da66de15d69b43d1d3bca3a78ee07bcb114034a"
+          }
+        },
+        {
+          "client_id": "13310552805-i2mqv5mlfg24i3ocjie9qqhh7p5dcgol.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQ3J1OqjjqN56K24efU_yAg3VDB13SlF4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "13310552805-i2mqv5mlfg24i3ocjie9qqhh7p5dcgol.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
