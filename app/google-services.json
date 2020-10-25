@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "13310552805-duonf78pgoroipa3nj5kc5gb70m771cg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cpsc571.footprints",
+            "certificate_hash": "e5ca5a9a993f0a7417b584d69d33879d86b57406"
+          }
+        },
+        {
           "client_id": "13310552805-k06ac0u21tfe9et3mc04gkjrua61ja70.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

@@ -3,6 +3,8 @@ package com.cpsc571.footprints
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -18,13 +20,11 @@ class MainActivity : AppCompatActivity() {
 
 
         auth = Firebase.auth
-    }
 
-    override fun onStart() {
-        super.onStart()
-
-        val currentUser = auth.currentUser
-        handleUser(currentUser)
+        Handler(Looper.getMainLooper()).postDelayed({
+            val currentUser = auth.currentUser
+            handleUser(currentUser)
+        }, 2000)
     }
 
     private fun handleUser(user: FirebaseUser?) {
