@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Footprints</string>
+    <string name="button_location_history_page">Location History</string>
+    <string name="button_tracker_page">GPS Tracker</string>
 </resources>
