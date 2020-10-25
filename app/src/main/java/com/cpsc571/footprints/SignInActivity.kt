@@ -27,7 +27,6 @@ class SignInActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
 
-
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
@@ -77,6 +76,7 @@ class SignInActivity : AppCompatActivity() {
                     Log.d("SingInActivity", "signInWithCredential:success")
                     val dashboardIntent = Intent(this, DashboardActivity::class.java)
                     startActivity(dashboardIntent)
+                    finish()
                 }
                 else {
                     Log.w("SingInActivity", "signIntWithCredential:failure", task.exception)
