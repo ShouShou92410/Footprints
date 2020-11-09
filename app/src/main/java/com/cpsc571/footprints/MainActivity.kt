@@ -17,7 +17,6 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-
     companion object {
         private const val RC_SIGN_IN = 420
     }
