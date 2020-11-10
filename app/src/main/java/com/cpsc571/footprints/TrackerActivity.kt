@@ -1,19 +1,20 @@
 package com.cpsc571.footprints
 
 import android.Manifest
-import android.content.Intent
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
-import android.view.View
 import android.widget.TextView
 import android.widget.ToggleButton
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import kotlinx.android.synthetic.main.activity_tracker.*
+
 
 class TrackerActivity : AppCompatActivity() {
     companion object {
@@ -22,6 +23,7 @@ class TrackerActivity : AppCompatActivity() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tracker)
@@ -29,6 +31,7 @@ class TrackerActivity : AppCompatActivity() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         startTracking()
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -69,10 +72,29 @@ class TrackerActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun getLocationTest() {
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                testingTextView.text = "Altitude: " + location?.altitude + "Latitude" + location?.latitude + "Longitude" + location?.longitude
+        val locationRequest = LocationRequest.create().apply {
+            interval = 3000
+            fastestInterval = 5000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        val locationCallback = object: LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                for (location in locationResult?.locations) {
+                    if (location != null) {
+                        handleLocationUIUpdate(location)
+                    }
+                }
             }
+        }
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+    }
+
+    private fun handleLocationUIUpdate(location: Location) {
+        location_tv.text = location_tv.text.toString() +
+            "Latitude: " + location.latitude + System.getProperty ("line.separator") +
+            "Longitude: " + location.longitude + System.getProperty ("line.separator")
     }
 }
