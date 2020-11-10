@@ -4,19 +4,16 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Criteria
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
+import android.location.*
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import kotlinx.android.synthetic.main.activity_tracker.*
+import java.io.IOException
+import java.util.*
 
 
 class TrackerActivity : AppCompatActivity(), LocationListener {
@@ -27,6 +24,7 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
     }
 
     private lateinit var locationManager: LocationManager
+    private lateinit var geocoder: Geocoder
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +33,7 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
         gpsButtonListenerEnable()
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        geocoder = Geocoder(this, Locale.getDefault())
         checkPermission()
     }
 
@@ -96,8 +95,23 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
     }
 
     private fun handleLocationUIUpdate(location: Location) {
-        location_tv.text = location_tv.text.toString() +
-            "Latitude: " + location.latitude + System.getProperty ("line.separator") +
-            "Longitude: " + location.longitude + System.getProperty ("line.separator")
+        try {
+            val addressList = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+            if (addressList.isNotEmpty()) {
+                val address = addressList[0]
+                var localAddress = ""
+                for (i in 0..address.maxAddressLineIndex) {
+                    localAddress += address.getAddressLine(i) + ", "
+                }
+
+                location_tv.text = location_tv.text.toString() +
+                    "Latitude: " + location.latitude + System.getProperty ("line.separator") +
+                    "Longitude: " + location.longitude + System.getProperty ("line.separator") +
+                    "Address: " + localAddress + System.getProperty ("line.separator")
+            }
+        }
+        catch (e: IOException) {
+            Log.w("TrackerActivity", "Network unavailable")
+        }
     }
 }
