@@ -2,26 +2,29 @@ package com.cpsc571.footprints
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Location
+import android.location.*
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.google.android.gms.location.*
 import kotlinx.android.synthetic.main.activity_tracker.*
+import java.io.IOException
+import java.util.*
 
 
-class TrackerActivity : AppCompatActivity() {
+class TrackerActivity : AppCompatActivity(), LocationListener {
     companion object {
         private const val RC_LOCATION = 421
+        private const val MIN_INTERVAL = 3000L
+        private const val MIN_DISTANCE = 0f
     }
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationManager: LocationManager
+    private lateinit var geocoder: Geocoder
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,20 +32,34 @@ class TrackerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_tracker)
         gpsButtonListenerEnable()
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        startTracking()
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        geocoder = Geocoder(this, Locale.getDefault())
+        checkPermission()
+    }
 
+    @SuppressLint("MissingPermission")
+    override fun onResume() {
+        super.onResume()
+
+        setUpLocationUpdates()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        locationManager.removeUpdates(this)
+    }
+
+    override fun onLocationChanged(location: Location) {
+        handleLocationUIUpdate(location)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == RC_LOCATION) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getLocationTest()
-            }
-            else {
-                testingTextView.text = "Tracker feature requires location permission to work."
+            if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                location_tv.text = "Tracker feature requires location permission to work."
             }
         }
     }
@@ -60,41 +77,41 @@ class TrackerActivity : AppCompatActivity() {
         }
     }
 
-    private fun startTracking() {
+    private fun checkPermission() {
         // If no permission, request them from the user
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         {
-            getLocationTest()
-        }
-        else {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), RC_LOCATION)
         }
     }
 
     @SuppressLint("MissingPermission")
-    private fun getLocationTest() {
-        val locationRequest = LocationRequest.create().apply {
-            interval = 3000
-            fastestInterval = 5000
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+    private fun setUpLocationUpdates() {
+        var provider: String? = locationManager.getBestProvider(Criteria(), true)
+        if (provider != null) {
+            locationManager.requestLocationUpdates(provider, MIN_INTERVAL, MIN_DISTANCE, this)
         }
-
-        val locationCallback = object: LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                for (location in locationResult?.locations) {
-                    if (location != null) {
-                        handleLocationUIUpdate(location)
-                    }
-                }
-            }
-        }
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
     }
 
     private fun handleLocationUIUpdate(location: Location) {
-        location_tv.text = location_tv.text.toString() +
-            "Latitude: " + location.latitude + System.getProperty ("line.separator") +
-            "Longitude: " + location.longitude + System.getProperty ("line.separator")
+        try {
+            val addressList = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+            if (addressList.isNotEmpty()) {
+                val address = addressList[0]
+                var localAddress = ""
+                for (i in 0..address.maxAddressLineIndex) {
+                    localAddress += address.getAddressLine(i) + ", "
+                }
+
+                location_tv.text = location_tv.text.toString() +
+                    "Latitude: " + location.latitude + System.getProperty ("line.separator") +
+                    "Longitude: " + location.longitude + System.getProperty ("line.separator") +
+                    "Address: " + localAddress + System.getProperty ("line.separator")
+            }
+        }
+        catch (e: IOException) {
+            Log.w("TrackerActivity", "Network unavailable")
+        }
     }
 }
