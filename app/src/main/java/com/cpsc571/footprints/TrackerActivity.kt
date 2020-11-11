@@ -7,11 +7,14 @@ import android.content.pm.PackageManager
 import android.location.*
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.ToggleButton
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import kotlinx.android.synthetic.main.activity_tracker.*
+import kotlinx.android.synthetic.main.custom_dialog.view.*
 import java.io.IOException
 import java.util.*
 
@@ -25,6 +28,10 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
 
     private lateinit var locationManager: LocationManager
     private lateinit var geocoder: Geocoder
+
+
+    private var trackingBool = false
+    private var foundLocation = false;
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,12 +53,13 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
 
     override fun onPause() {
         super.onPause()
-
         locationManager.removeUpdates(this)
     }
 
     override fun onLocationChanged(location: Location) {
-        handleLocationUIUpdate(location)
+        if(trackingBool && !foundLocation){
+            handleLocationUIUpdate(location)
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -70,9 +78,11 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
             if (isChecked) {
                 // The toggle is enabled
                 val textView = testingTextView.apply{text = "GPS ON"}
+                trackingBool = true;
             } else {
                 // The toggle is disabled
                 val textView = findViewById<TextView>(R.id.testingTextView).apply{text = "GPS OFF"}
+                trackingBool = false;
             }
         }
     }
@@ -98,16 +108,31 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
         try {
             val addressList = geocoder.getFromLocation(location.latitude, location.longitude, 1)
             if (addressList.isNotEmpty()) {
-                val address = addressList[0]
-                var localAddress = ""
-                for (i in 0..address.maxAddressLineIndex) {
-                    localAddress += address.getAddressLine(i) + ", "
+                foundLocation = true
+                var defaultNameString = "Default Name"
+                val dialogView = LayoutInflater.from(this).inflate(R.layout.custom_dialog,null)
+                val builder = AlertDialog.Builder(this).setView(dialogView).setTitle("Save Prompt")
+                val alertDialog = builder.show()
+                dialogView.cancelLocationSaveButton.setOnClickListener{
+                    alertDialog.dismiss()
+                    foundLocation = false
                 }
-
-                location_tv.text = location_tv.text.toString() +
-                    "Latitude: " + location.latitude + System.getProperty ("line.separator") +
-                    "Longitude: " + location.longitude + System.getProperty ("line.separator") +
-                    "Address: " + localAddress + System.getProperty ("line.separator")
+                dialogView.saveLocationButton.setOnClickListener{
+                    alertDialog.dismiss()
+                    val name = dialogView.editTextLocationName.text.toString()
+                    defaultNameString = name
+                    val address = addressList[0]
+                    var localAddress = ""
+                    for (i in 0..address.maxAddressLineIndex) {
+                        localAddress += address.getAddressLine(i) + ", "
+                    }
+                    location_tv.text = location_tv.text.toString() +
+                            "Name: " + defaultNameString + System.getProperty ("line.separator") +
+                            "Latitude: " + location.latitude + System.getProperty ("line.separator") +
+                            "Longitude: " + location.longitude + System.getProperty ("line.separator") +
+                            "Address: " + localAddress + System.getProperty ("line.separator")
+                    foundLocation = false
+                }
             }
         }
         catch (e: IOException) {
