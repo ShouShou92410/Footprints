@@ -32,9 +32,11 @@ public class FirebaseFootprintsSource: FirebaseFootprints {
         ref.setValue(jsonData)
     }
 
-    override fun push(jsonAddress: String, jsonData: String) {
+    override fun push(jsonAddress: String, jsonData: String, id: String?) {
         val ref = getDatabaseRef(jsonAddress)
-        val newChild = ref.push()
+        var newChild =
+            if (id == null) ref.push()
+            else ref.child(id)
         newChild.setValue(jsonData)
     }
 
@@ -44,6 +46,6 @@ public class FirebaseFootprintsSource: FirebaseFootprints {
     }
 
     private fun getDatabaseRef(jsonAddress: String): DatabaseReference {
-        return Firebase.database.getReferenceFromUrl(URL)
+        return Firebase.database.getReferenceFromUrl(URL).child(jsonAddress)
     }
 }
