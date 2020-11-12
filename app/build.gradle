@@ -22,8 +22,13 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "FIREBASE_URL", "\"https://footprints-a98dc.firebaseio.com\""
+        }
+        debug {
+            buildConfigField "String", "SERVER_URL", "\"https://footprints-a98dc.firebaseio.com\""
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

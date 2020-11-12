@@ -1,17 +1,16 @@
 package com.cpsc571.footprints.firebase
 
 import android.util.Log
-import com.cpsc571.footprints.CONSTANTS;
+import com.cpsc571.footprints.BuildConfig
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
 public class FirebaseFootprintsSource: FirebaseFootprints {
-    private final var URL = CONSTANTS.FIREBASE_URL
+    private final var URL = BuildConfig.SERVER_URL
 
     override fun get(jsonAddress: String, onChange: (value: Any?) -> Unit) {
         val ref = getDatabaseRef(jsonAddress)
-
         ref.addValueEventListener(object: ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // This method is called once with the initial value and again
