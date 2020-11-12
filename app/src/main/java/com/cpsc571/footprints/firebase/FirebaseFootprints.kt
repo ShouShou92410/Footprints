@@ -1,6 +1,6 @@
 package com.cpsc571.footprints.firebase
 
-import com.google.firebase.database.ValueEventListener
+import com.cpsc571.footprints.entity.JsonObject
 
 public interface FirebaseFootprints {
     /**
@@ -21,9 +21,10 @@ public interface FirebaseFootprints {
     /**
      * @param jsonAddress Location of where you want to write, starting from root
      * @param jsonData Data you wish to insert
+     * @param id Optional id for the new json data
      * Inserts a new value at the given address. Existing data will be a sibling of the new data inserted
      */
-    public fun push(jsonAddress: String, jsonData: String)
+    public fun push(jsonAddress: String, jsonData: JsonObject, id: String? = null)
 
     /**
      * @param jsonAddress Location of where you want to write, starting from root

@@ -5,6 +5,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+
+
+import com.cpsc571.footprints.entity.User
+
+
 import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -48,14 +53,30 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
 
         val currentUser = auth.currentUser
-        handleUser(currentUser)
+        handleSignIn(currentUser)
     }
 
-    private fun handleUser(user: FirebaseUser?) {
+    private fun handleSignIn(user: FirebaseUser?) {
         if (user != null) {
+            handleUserCreation(user)
+
             val dashboardIntent = Intent(this, DashboardActivity::class.java)
             startActivity(dashboardIntent)
         }
+    }
+
+    private fun handleUserCreation(user: FirebaseUser) {
+        val firebaseDB: FirebaseFootprints = FirebaseFootprintsSource()
+        val jsonAddress = "Users/${user.uid}"
+        val jsonData = User(user.displayName, user.email)
+        val onChange: (Any?) -> Unit = {
+            value: Any? ->
+                if (value == null) {
+                    firebaseDB.push("Users", jsonData, user.uid)
+                }
+        }
+
+        firebaseDB.get(jsonAddress, onChange)
     }
 
     private fun handleLoading(isLoading: Boolean) {
