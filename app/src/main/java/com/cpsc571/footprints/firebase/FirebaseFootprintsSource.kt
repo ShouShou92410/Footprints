@@ -12,11 +12,10 @@ public class FirebaseFootprintsSource: FirebaseFootprints {
     override fun get(jsonAddress: String, onChange: (value: Any?) -> Unit) {
         val ref = getDatabaseRef(jsonAddress)
 
-        ref.addValueEventListener(object: ValueEventListener {
+        ref.addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                val value = dataSnapshot.getValue()
+                // This method is called once with the initial value
+                val value = dataSnapshot.value
                 onChange(value)
             }
 
