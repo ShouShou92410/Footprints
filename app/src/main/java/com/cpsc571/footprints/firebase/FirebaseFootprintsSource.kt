@@ -2,6 +2,7 @@ package com.cpsc571.footprints.firebase
 
 import android.util.Log
 import com.cpsc571.footprints.CONSTANTS;
+import com.cpsc571.footprints.entity.JsonObject
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -31,7 +32,7 @@ public class FirebaseFootprintsSource: FirebaseFootprints {
         ref.setValue(jsonData)
     }
 
-    override fun push(jsonAddress: String, jsonData: String, id: String?) {
+    override fun push(jsonAddress: String, jsonData: JsonObject, id: String?) {
         val ref = getDatabaseRef(jsonAddress)
         var newChild =
             if (id == null) ref.push()
