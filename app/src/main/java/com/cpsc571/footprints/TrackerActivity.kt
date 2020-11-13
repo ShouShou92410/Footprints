@@ -151,16 +151,17 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
                     val user = Firebase.auth.currentUser
                     val firebaseDB: FirebaseFootprints = FirebaseFootprintsSource()
                     val jsonAddress = "Users/${user?.uid}/locations"
-                    val jsonData = LocationObject(localAddress,location.longitude.toString(),location.latitude.toString())
+                    val jsonData = LocationObject(defaultNameString,localAddress,location.longitude.toString(),location.latitude.toString())
+                    /*
                     val onChange: (Any?) -> Unit = {
                         value: Any? ->
                         if (value == null) {
-                            firebaseDB.push(jsonAddress, jsonData, defaultNameString)
+                            firebaseDB.push(jsonAddress, jsonData)
                         }
                     }
-
-                    firebaseDB.get("${jsonAddress}/${defaultNameString}", onChange)
-
+                       */
+                    //firebaseDB.get("${jsonAddress}/${defaultNameString}", onChange)
+                    firebaseDB.push(jsonAddress, jsonData)
                     foundLocation = false
                 }
             }
