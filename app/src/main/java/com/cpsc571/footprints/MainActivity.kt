@@ -8,6 +8,7 @@ import android.view.View
 
 
 import com.cpsc571.footprints.entity.User
+import com.cpsc571.footprints.firebase.FirebaseFootprints
 
 
 import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
