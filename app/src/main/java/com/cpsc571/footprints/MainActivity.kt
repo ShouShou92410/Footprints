@@ -125,9 +125,9 @@ class MainActivity : AppCompatActivity() {
                 .addOnCompleteListener(this) {  task ->
                     if (task.isSuccessful) {
                         Log.d("MainActivity", "signInWithCredential:success")
+
                         handleLoading(false)
-                        val dashboardIntent = Intent(this, DashboardActivity::class.java)
-                        startActivity(dashboardIntent)
+                        handleSignIn(auth.currentUser)
                         finish()
                     }
                     else {
