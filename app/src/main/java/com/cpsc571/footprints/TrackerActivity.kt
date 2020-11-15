@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.*
 import android.os.Bundle
+
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.TextView
@@ -13,6 +14,15 @@ import android.widget.ToggleButton
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+
+import com.cpsc571.footprints.entity.LocationObject
+import com.cpsc571.footprints.firebase.FirebaseFootprints
+import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
+
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+
+
 import kotlinx.android.synthetic.main.activity_tracker.*
 import kotlinx.android.synthetic.main.custom_dialog.view.*
 import java.io.IOException
@@ -112,6 +122,12 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
                 var defaultNameString = "Default Name"
                 val dialogView = LayoutInflater.from(this).inflate(R.layout.custom_dialog,null)
                 val builder = AlertDialog.Builder(this).setView(dialogView).setTitle("Save Prompt")
+                builder.setOnCancelListener{
+                    foundLocation = false;
+                }
+                builder.setOnDismissListener {
+                    foundLocation = false;
+                }
                 val alertDialog = builder.show()
                 dialogView.cancelLocationSaveButton.setOnClickListener{
                     alertDialog.dismiss()
@@ -131,6 +147,21 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
                             "Latitude: " + location.latitude + System.getProperty ("line.separator") +
                             "Longitude: " + location.longitude + System.getProperty ("line.separator") +
                             "Address: " + localAddress + System.getProperty ("line.separator")
+
+                    val user = Firebase.auth.currentUser
+                    val firebaseDB: FirebaseFootprints = FirebaseFootprintsSource()
+                    val jsonAddress = "Users/${user?.uid}/locations"
+                    val jsonData = LocationObject(defaultNameString,localAddress,location.longitude.toString(),location.latitude.toString())
+                    /*
+                    val onChange: (Any?) -> Unit = {
+                        value: Any? ->
+                        if (value == null) {
+                            firebaseDB.push(jsonAddress, jsonData)
+                        }
+                    }
+                       */
+                    //firebaseDB.get("${jsonAddress}/${defaultNameString}", onChange)
+                    firebaseDB.push(jsonAddress, jsonData)
                     foundLocation = false
                 }
             }
