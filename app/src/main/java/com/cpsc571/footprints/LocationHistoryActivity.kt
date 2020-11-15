@@ -22,6 +22,7 @@ class LocationHistoryActivity : AppCompatActivity() {
         var currentUser = Firebase.auth.currentUser
         var onChange: (DataSnapshot) -> Unit = {
             value: DataSnapshot ->
+                Log.d("a", "a")
                 var locations = value.children.find { childSnapshot: DataSnapshot -> childSnapshot.key == "locations" }
                 if (locations != null && locations.exists()) {
                     // TODO Show empty locations
