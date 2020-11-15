@@ -7,5 +7,4 @@ class LocationObject(
         var latitude: String?
 ): JsonObject()
 {
-
 }

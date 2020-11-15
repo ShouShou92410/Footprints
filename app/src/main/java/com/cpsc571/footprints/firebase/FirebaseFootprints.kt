@@ -1,16 +1,17 @@
 package com.cpsc571.footprints.firebase
 
 import com.cpsc571.footprints.entity.JsonObject
+import com.google.firebase.database.DataSnapshot
 
 public interface FirebaseFootprints {
     /**
      * @param jsonAddress Location of where you want to write, starting from root
-     * @param onChange this is where values are passed to
+     * @param onChange this is where data snapshots are passed to
      * @param notifyAllChanges set as true if you want updated values sent as well
      * Gets data at the address. Data can be Maps, Lists, Strings, Booleans, and more.
      * Whenever the data at the address is updated, the @param onChange will get called with the new value.
      */
-    public fun get(jsonAddress: String, onChange: (value: Any?) -> Unit, notifyAllChanges: Boolean = false)
+    public fun get(jsonAddress: String, onChange: (value: DataSnapshot) -> Unit, notifyAllChanges: Boolean = false)
 
     /**
      * @param jsonAddress Location of where you want to write, starting from root

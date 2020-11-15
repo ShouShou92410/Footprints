@@ -7,8 +7,9 @@
     android:layout_height="match_parent"
     tools:context=".LocationHistoryActivity">
 
-
     <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
         android:layout_margin="10dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -45,6 +46,5 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

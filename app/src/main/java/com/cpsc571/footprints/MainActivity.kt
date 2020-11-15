@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -70,9 +71,9 @@ class MainActivity : AppCompatActivity() {
         val firebaseDB: FirebaseFootprints = FirebaseFootprintsSource()
         val jsonAddress = "Users/${user.uid}"
         val jsonData = User(user.displayName, user.email)
-        val onChange: (Any?) -> Unit = {
-            value: Any? ->
-                if (value == null) {
+        val onChange: (DataSnapshot) -> Unit = {
+            snapshot: DataSnapshot ->
+                if (!snapshot.exists()) {
                     firebaseDB.push("Users", jsonData, user.uid)
                 }
         }

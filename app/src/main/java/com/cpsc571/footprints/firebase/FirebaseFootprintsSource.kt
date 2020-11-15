@@ -10,13 +10,12 @@ import com.google.firebase.ktx.Firebase
 public class FirebaseFootprintsSource: FirebaseFootprints {
     private final var URL = BuildConfig.SERVER_URL
 
-    override fun get(jsonAddress: String, onChange: (value: Any?) -> Unit, notifyAllChanges: Boolean) {
+    override fun get(jsonAddress: String, onChange: (value: DataSnapshot) -> Unit, notifyAllChanges: Boolean) {
         val ref = getDatabaseRef(jsonAddress)
         val listener = object: ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // This method is called once with the initial value
-                val value = dataSnapshot.value
-                onChange(value)
+                onChange(dataSnapshot)
             }
 
             override fun onCancelled(error: DatabaseError) {
