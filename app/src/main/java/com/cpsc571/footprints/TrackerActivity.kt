@@ -23,7 +23,7 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
     companion object {
         private const val RC_LOCATION = 421
         private const val MIN_INTERVAL = 3000L
-        private const val MIN_DISTANCE = 0f
+        private const val MIN_DISTANCE = 10f
     }
 
     private lateinit var locationManager: LocationManager
