@@ -12,8 +12,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Footprints">
-        <activity android:name=".TrackerActivity"
-                  android:parentActivityName=".DashboardActivity">
+        <activity
+            android:name=".LocationSelectedActivity"
+            android:parentActivityName=".LocationHistoryActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LocationHistoryActivity" />
+        </activity>
+        <activity
+            android:name=".TrackerActivity"
+            android:parentActivityName=".DashboardActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".DashboardActivity" />
@@ -34,4 +42,5 @@
             </intent-filter>
         </activity>
     </application>
+
 </manifest>

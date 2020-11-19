@@ -1,12 +1,15 @@
 package com.cpsc571.footprints
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cpsc571.footprints.entity.LocationObject
@@ -15,6 +18,7 @@ import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.location_history_locations_iterable.view.*
 
 class LocationHistoryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,9 +66,21 @@ private class CustomAdapter(private val dataSet: Array<LocationObject>) :
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val locationName: TextView = view.findViewById(R.id.locationName)
         val locationAddress: TextView = view.findViewById(R.id.locationAddress)
-
+        val rowLayout: FrameLayout = view.findViewById(R.id.locationRowLayout)
+        lateinit var locationLongitude: String
+        lateinit var locationLatitude: String
         init {
             // Define click listener for the ViewHolder's View.
+            view.setOnClickListener{
+                view.setOnClickListener{ v: View ->
+                    val intent = Intent(v.context, LocationSelectedActivity::class.java)
+                    intent.putExtra("locationAddress", locationAddress.text)
+                    intent.putExtra("locationName", locationName.text)
+                    intent.putExtra("locationLongitude", locationLongitude)
+                    intent.putExtra("locationLatitude", locationLatitude)
+                    v.context.startActivity(intent)
+                }
+            }
         }
     }
 
@@ -84,6 +100,8 @@ private class CustomAdapter(private val dataSet: Array<LocationObject>) :
         // contents of the view with that element
         viewHolder.locationName.text = dataSet[position].name
         viewHolder.locationAddress.text = dataSet[position].address
+        viewHolder.locationLatitude = dataSet[position].latitude.toString()
+        viewHolder.locationLongitude = dataSet[position].longitude.toString()
     }
 
     // Return the size of your dataset (invoked by the layout manager)
