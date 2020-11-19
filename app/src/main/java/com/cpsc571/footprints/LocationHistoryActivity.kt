@@ -34,7 +34,8 @@ class LocationHistoryActivity : AppCompatActivity() {
         val currentUser = Firebase.auth.currentUser
         val onChange: (DataSnapshot) -> Unit = {
             value: DataSnapshot ->
-                val locations = value.children.find { childSnapshot: DataSnapshot -> childSnapshot.key == "locations" }
+                //val locations = value.children.find { childSnapshot: DataSnapshot -> childSnapshot.key == "locations" }
+                val locations = value
                 if (locations != null && !locations.exists()) {
                     // TODO Show empty locations
                 } else {
@@ -46,7 +47,7 @@ class LocationHistoryActivity : AppCompatActivity() {
                     setupLocationsList(adapter)
                 }
         }
-        firebaseFootprints.get("Users/${currentUser?.uid.toString()}", onChange)
+        firebaseFootprints.get("Locations/${currentUser?.uid.toString()}", onChange)
     }
 
     private fun setupLocationsList(adapter: CustomAdapter = CustomAdapter(arrayOf())): RecyclerView.Adapter<CustomAdapter.ViewHolder> {
