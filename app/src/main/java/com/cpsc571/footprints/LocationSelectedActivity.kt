@@ -2,6 +2,7 @@ package com.cpsc571.footprints
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 
 class LocationSelectedActivity : AppCompatActivity() {
@@ -27,6 +28,7 @@ class LocationSelectedActivity : AppCompatActivity() {
             text = longitude
         }
 
+        //Log.d("LocationSelectedActivty", "longitude: ${longitude}, latitude: $latitude")
 
     }
 }
