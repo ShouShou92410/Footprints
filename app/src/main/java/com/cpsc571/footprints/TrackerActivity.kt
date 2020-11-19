@@ -142,25 +142,11 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
                     for (i in 0..address.maxAddressLineIndex) {
                         localAddress += address.getAddressLine(i) + ", "
                     }
-                    location_tv.text = location_tv.text.toString() +
-                            "Name: " + defaultNameString + System.getProperty ("line.separator") +
-                            "Latitude: " + location.latitude + System.getProperty ("line.separator") +
-                            "Longitude: " + location.longitude + System.getProperty ("line.separator") +
-                            "Address: " + localAddress + System.getProperty ("line.separator")
 
                     val user = Firebase.auth.currentUser
                     val firebaseDB: FirebaseFootprints = FirebaseFootprintsSource()
                     val jsonAddress = "Users/${user?.uid}/locations"
                     val jsonData = LocationObject(defaultNameString,localAddress,location.longitude.toString(),location.latitude.toString())
-                    /*
-                    val onChange: (Any?) -> Unit = {
-                        value: Any? ->
-                        if (value == null) {
-                            firebaseDB.push(jsonAddress, jsonData)
-                        }
-                    }
-                       */
-                    //firebaseDB.get("${jsonAddress}/${defaultNameString}", onChange)
                     firebaseDB.push(jsonAddress, jsonData)
                     foundLocation = false
                 }

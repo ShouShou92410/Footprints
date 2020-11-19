@@ -55,55 +55,55 @@ class LocationHistoryActivity : AppCompatActivity() {
         locationList.layoutManager = LinearLayoutManager(this)
         return adapter
     }
-}
+    private class CustomAdapter(private val dataSet: Array<LocationObject>) :
+            RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
-private class CustomAdapter(private val dataSet: Array<LocationObject>) :
-        RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
-
-    /*
-    This is where you define what the list elements are
-     */
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val locationName: TextView = view.findViewById(R.id.locationName)
-        val locationAddress: TextView = view.findViewById(R.id.locationAddress)
-        val rowLayout: FrameLayout = view.findViewById(R.id.locationRowLayout)
-        lateinit var locationLongitude: String
-        lateinit var locationLatitude: String
-        init {
-            // Define click listener for the ViewHolder's View.
-            view.setOnClickListener{
-                view.setOnClickListener{ v: View ->
-                    val intent = Intent(v.context, LocationSelectedActivity::class.java)
-                    intent.putExtra("locationAddress", locationAddress.text)
-                    intent.putExtra("locationName", locationName.text)
-                    intent.putExtra("locationLongitude", locationLongitude)
-                    intent.putExtra("locationLatitude", locationLatitude)
-                    v.context.startActivity(intent)
+        /*
+        This is where you define what the list elements are
+         */
+        class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val locationName: TextView = view.findViewById(R.id.locationName)
+            val locationAddress: TextView = view.findViewById(R.id.locationAddress)
+            val rowLayout: FrameLayout = view.findViewById(R.id.locationRowLayout)
+            lateinit var locationLongitude: String
+            lateinit var locationLatitude: String
+            init {
+                // Define click listener for the ViewHolder's View.
+                view.setOnClickListener{
+                    view.setOnClickListener{ v: View ->
+                        val intent = Intent(v.context, LocationSelectedActivity::class.java)
+                        intent.putExtra("locationAddress", locationAddress.text)
+                        intent.putExtra("locationName", locationName.text)
+                        intent.putExtra("locationLongitude", locationLongitude)
+                        intent.putExtra("locationLatitude", locationLatitude)
+                        v.context.startActivity(intent)
+                    }
                 }
             }
         }
+
+        // Create new views (invoked by the layout manager)
+        override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
+            // Create a new view, which defines the UI of the list item
+            val view = LayoutInflater.from(viewGroup.context)
+                    .inflate(R.layout.location_history_locations_iterable, viewGroup, false)
+
+            return ViewHolder(view)
+        }
+
+        // Replace the contents of a view (invoked by the layout manager)
+        override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+
+            // Get element from your dataset at this position and replace the
+            // contents of the view with that element
+            viewHolder.locationName.text = dataSet[position].name
+            viewHolder.locationAddress.text = dataSet[position].address
+            viewHolder.locationLatitude = dataSet[position].latitude.toString()
+            viewHolder.locationLongitude = dataSet[position].longitude.toString()
+        }
+
+        // Return the size of your dataset (invoked by the layout manager)
+        override fun getItemCount() = dataSet.size
     }
-
-    // Create new views (invoked by the layout manager)
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
-        // Create a new view, which defines the UI of the list item
-        val view = LayoutInflater.from(viewGroup.context)
-                .inflate(R.layout.location_history_locations_iterable, viewGroup, false)
-
-        return ViewHolder(view)
-    }
-
-    // Replace the contents of a view (invoked by the layout manager)
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-
-        // Get element from your dataset at this position and replace the
-        // contents of the view with that element
-        viewHolder.locationName.text = dataSet[position].name
-        viewHolder.locationAddress.text = dataSet[position].address
-        viewHolder.locationLatitude = dataSet[position].latitude.toString()
-        viewHolder.locationLongitude = dataSet[position].longitude.toString()
-    }
-
-    // Return the size of your dataset (invoked by the layout manager)
-    override fun getItemCount() = dataSet.size
 }
+

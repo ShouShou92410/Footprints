@@ -25,7 +25,7 @@ class LocationSelectedActivity : AppCompatActivity() {
             text = longitude
         }
         val locationLatitudeTextView: TextView = findViewById<TextView>(R.id.displayLocationLatitude).apply{
-            text = longitude
+            text = latitude
         }
 
         //Log.d("LocationSelectedActivty", "longitude: ${longitude}, latitude: $latitude")
