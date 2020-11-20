@@ -1,20 +1,19 @@
 package com.cpsc571.footprints
 
+import android.app.Activity
 import android.content.Intent
-import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.cpsc571.footprints.entity.LocationObject
-import com.cpsc571.footprints.entity.LocationTupleObject
 import com.cpsc571.footprints.entity.PurchaseObject
 import com.cpsc571.footprints.firebase.FirebaseFootprints
 import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
@@ -23,6 +22,9 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.ktx.Firebase
 
 class LocationSelectedActivity : AppCompatActivity() {
+    companion object {
+        private const val RC_RECEIPT_CAPTURE = 100
+    }
 
     private var locationID: String? = null
 
@@ -51,7 +53,27 @@ class LocationSelectedActivity : AppCompatActivity() {
         val adapter = setupPurchasesList()
         getAndDisplayPurchases(adapter)
         //Log.d("LocationSelectedActivty", "longitude: ${longitude}, latitude: $latitude")
+    }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK && requestCode == RC_RECEIPT_CAPTURE) {
+            val extras: Bundle? = data?.extras
+            val bmp = extras?.get("data")
+
+
+
+        }
+        else {
+            Toast.makeText(this, "No image found.", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun scanReceipt(view: View) {
+        val it: Intent = Intent("android.media.action.IMAGE_CAPTURE")
+        it.putExtra(MediaStore.EXTRA_OUTPUT, "")
+        startActivityForResult(it, RC_RECEIPT_CAPTURE)
     }
 
     private fun getAndDisplayPurchases(adapter: RecyclerView.Adapter<LocationSelectedActivity.CustomAdapter.ViewHolder>) {
@@ -126,6 +148,4 @@ class LocationSelectedActivity : AppCompatActivity() {
         // Return the size of your dataset (invoked by the layout manager)
         override fun getItemCount() = dataSet.size
     }
-
-
 }

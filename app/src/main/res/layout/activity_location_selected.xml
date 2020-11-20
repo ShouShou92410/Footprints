@@ -164,9 +164,10 @@
         app:layout_constraintGuide_percent="0.70" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/scanReceiptButton"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:onClick="scanReceipt"
         android:text="@string/button_scan_receipt"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
