@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cpsc571.footprints.entity.LocationObject
+import com.cpsc571.footprints.entity.LocationTupleObject
 import com.cpsc571.footprints.firebase.FirebaseFootprints
 import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
 import com.google.firebase.auth.ktx.auth
@@ -39,9 +40,9 @@ class LocationHistoryActivity : AppCompatActivity() {
                 if (locations != null && !locations.exists()) {
                     // TODO Show empty locations
                 } else {
-                    val data = mutableListOf<LocationObject>()
+                    val data = mutableListOf<LocationTupleObject>()
                     locations?.children?.forEach(fun(locationSnapshot: DataSnapshot) {
-                        data.add(LocationObject(locationSnapshot))
+                        data.add(LocationTupleObject(LocationObject(locationSnapshot),locationSnapshot.key))
                     })
                     val adapter = CustomAdapter(data.toTypedArray())
                     setupLocationsList(adapter)
@@ -56,7 +57,7 @@ class LocationHistoryActivity : AppCompatActivity() {
         locationList.layoutManager = LinearLayoutManager(this)
         return adapter
     }
-    private class CustomAdapter(private val dataSet: Array<LocationObject>) :
+    private class CustomAdapter(private val dataSet: Array<LocationTupleObject>) :
             RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
         /*
@@ -68,17 +69,17 @@ class LocationHistoryActivity : AppCompatActivity() {
             val rowLayout: FrameLayout = view.findViewById(R.id.locationRowLayout)
             lateinit var locationLongitude: String
             lateinit var locationLatitude: String
+            lateinit var locationID: String
             init {
                 // Define click listener for the ViewHolder's View.
-                view.setOnClickListener{
-                    view.setOnClickListener{ v: View ->
-                        val intent = Intent(v.context, LocationSelectedActivity::class.java)
-                        intent.putExtra("locationAddress", locationAddress.text)
-                        intent.putExtra("locationName", locationName.text)
-                        intent.putExtra("locationLongitude", locationLongitude)
-                        intent.putExtra("locationLatitude", locationLatitude)
-                        v.context.startActivity(intent)
-                    }
+                view.setOnClickListener{ v: View ->
+                    val intent = Intent(v.context, LocationSelectedActivity::class.java)
+                    intent.putExtra("locationAddress", locationAddress.text)
+                    intent.putExtra("locationName", locationName.text)
+                    intent.putExtra("locationLongitude", locationLongitude)
+                    intent.putExtra("locationLatitude", locationLatitude)
+                    intent.putExtra("locationID",locationID)
+                    v.context.startActivity(intent)
                 }
             }
         }
@@ -97,10 +98,11 @@ class LocationHistoryActivity : AppCompatActivity() {
 
             // Get element from your dataset at this position and replace the
             // contents of the view with that element
-            viewHolder.locationName.text = dataSet[position].name
-            viewHolder.locationAddress.text = dataSet[position].address
-            viewHolder.locationLatitude = dataSet[position].latitude.toString()
-            viewHolder.locationLongitude = dataSet[position].longitude.toString()
+            viewHolder.locationName.text = dataSet[position].locationObject.name
+            viewHolder.locationAddress.text = dataSet[position].locationObject.address
+            viewHolder.locationLatitude = dataSet[position].locationObject.latitude.toString()
+            viewHolder.locationLongitude = dataSet[position].locationObject.longitude.toString()
+            viewHolder.locationID = dataSet[position].locationID.toString()
         }
 
         // Return the size of your dataset (invoked by the layout manager)
