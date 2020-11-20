@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.*
 import android.os.Bundle
+
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.TextView
@@ -13,6 +14,15 @@ import android.widget.ToggleButton
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+
+import com.cpsc571.footprints.entity.LocationObject
+import com.cpsc571.footprints.firebase.FirebaseFootprints
+import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
+
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+
+
 import kotlinx.android.synthetic.main.activity_tracker.*
 import kotlinx.android.synthetic.main.custom_dialog.view.*
 import java.io.IOException
@@ -22,8 +32,10 @@ import java.util.*
 class TrackerActivity : AppCompatActivity(), LocationListener {
     companion object {
         private const val RC_LOCATION = 421
-        private const val MIN_INTERVAL = 3000L
+        private const val MIN_INTERVAL = 10000L
         private const val MIN_DISTANCE = 0f
+        private const val TRACKED_AREA_RADIUS = 15f
+        private const val MAXIMUM_DISTANCE_MOVED_TO_BE_CONSIDERED_STATIONARY = 1f
     }
 
     private lateinit var locationManager: LocationManager
@@ -31,14 +43,16 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
 
 
     private var trackingBool = false
-    private var foundLocation = false;
+    private var isPromptOpen = false;
+    private var trackedArea: Location? = null
+    private var previousLocation: Location? = null
+
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tracker)
         gpsButtonListenerEnable()
-
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         geocoder = Geocoder(this, Locale.getDefault())
         checkPermission()
@@ -47,7 +61,6 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
-
         setUpLocationUpdates()
     }
 
@@ -57,9 +70,16 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location) {
-        if(trackingBool && !foundLocation){
-            handleLocationUIUpdate(location)
+        if(previousLocation == null){
+            previousLocation = location
         }
+        var isStationary: Boolean = location.distanceTo(previousLocation) < MAXIMUM_DISTANCE_MOVED_TO_BE_CONSIDERED_STATIONARY
+        var isOutsideTrackedArea: Boolean =  trackedArea == null || location.distanceTo(trackedArea) > TRACKED_AREA_RADIUS
+        if (trackingBool && !isPromptOpen && isStationary && isOutsideTrackedArea) {
+            handleLocationUIUpdate(location)
+            trackedArea = location
+        }
+        previousLocation = location
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -108,14 +128,21 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
         try {
             val addressList = geocoder.getFromLocation(location.latitude, location.longitude, 1)
             if (addressList.isNotEmpty()) {
-                foundLocation = true
+                isPromptOpen = true
+
                 var defaultNameString = "Default Name"
                 val dialogView = LayoutInflater.from(this).inflate(R.layout.custom_dialog,null)
                 val builder = AlertDialog.Builder(this).setView(dialogView).setTitle("Save Prompt")
+                builder.setOnCancelListener{
+                    isPromptOpen = false;
+                }
+                builder.setOnDismissListener {
+                    isPromptOpen = false;
+                }
                 val alertDialog = builder.show()
                 dialogView.cancelLocationSaveButton.setOnClickListener{
                     alertDialog.dismiss()
-                    foundLocation = false
+                    isPromptOpen = false
                 }
                 dialogView.saveLocationButton.setOnClickListener{
                     alertDialog.dismiss()
@@ -126,12 +153,13 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
                     for (i in 0..address.maxAddressLineIndex) {
                         localAddress += address.getAddressLine(i) + ", "
                     }
-                    location_tv.text = location_tv.text.toString() +
-                            "Name: " + defaultNameString + System.getProperty ("line.separator") +
-                            "Latitude: " + location.latitude + System.getProperty ("line.separator") +
-                            "Longitude: " + location.longitude + System.getProperty ("line.separator") +
-                            "Address: " + localAddress + System.getProperty ("line.separator")
-                    foundLocation = false
+
+                    val user = Firebase.auth.currentUser
+                    val firebaseDB: FirebaseFootprints = FirebaseFootprintsSource()
+                    val jsonAddress = "Locations/${user?.uid}"
+                    val jsonData = LocationObject(defaultNameString,localAddress,location.longitude.toString(),location.latitude.toString())
+                    firebaseDB.push(jsonAddress, jsonData)
+                    isPromptOpen = false
                 }
             }
         }

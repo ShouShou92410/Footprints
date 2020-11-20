@@ -2,6 +2,7 @@ package com.cpsc571.footprints.firebase
 
 import android.util.Log
 import com.cpsc571.footprints.BuildConfig
+import com.cpsc571.footprints.entity.JsonObject
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -9,21 +10,25 @@ import com.google.firebase.ktx.Firebase
 public class FirebaseFootprintsSource: FirebaseFootprints {
     private final var URL = BuildConfig.SERVER_URL
 
-    override fun get(jsonAddress: String, onChange: (value: Any?) -> Unit) {
+    override fun get(jsonAddress: String, onChange: (value: DataSnapshot) -> Unit, notifyAllChanges: Boolean) {
         val ref = getDatabaseRef(jsonAddress)
-        ref.addValueEventListener(object: ValueEventListener {
+        val listener = object: ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                val value = dataSnapshot.getValue()
-                onChange(value)
+                // This method is called once with the initial value
+                onChange(dataSnapshot)
             }
 
             override fun onCancelled(error: DatabaseError) {
                 // Failed to read value
                 Log.d("FirebaseFtprintsSource", "ERROR MESSAGE: " + error.message + ", ERROR DETAILS: " + error.details)
             }
-        })
+        }
+
+        if (notifyAllChanges) {
+            ref.addValueEventListener(listener)
+        } else {
+            ref.addListenerForSingleValueEvent(listener)
+        }
     }
 
     override fun overwrite(jsonAddress: String, jsonData: String) {
@@ -31,9 +36,11 @@ public class FirebaseFootprintsSource: FirebaseFootprints {
         ref.setValue(jsonData)
     }
 
-    override fun push(jsonAddress: String, jsonData: String) {
+    override fun push(jsonAddress: String, jsonData: JsonObject, id: String?) {
         val ref = getDatabaseRef(jsonAddress)
-        val newChild = ref.push()
+        var newChild =
+            if (id == null) ref.push()
+            else ref.child(id)
         newChild.setValue(jsonData)
     }
 
@@ -43,6 +50,6 @@ public class FirebaseFootprintsSource: FirebaseFootprints {
     }
 
     private fun getDatabaseRef(jsonAddress: String): DatabaseReference {
-        return Firebase.database.getReferenceFromUrl(URL)
+        return Firebase.database.getReferenceFromUrl(URL).child(jsonAddress)
     }
 }

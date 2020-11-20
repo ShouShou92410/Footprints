@@ -5,6 +5,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+
+
+import com.cpsc571.footprints.entity.User
+import com.cpsc571.footprints.firebase.FirebaseFootprints
+
+
 import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -14,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -48,14 +55,30 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
 
         val currentUser = auth.currentUser
-        handleUser(currentUser)
+        handleSignIn(currentUser)
     }
 
-    private fun handleUser(user: FirebaseUser?) {
+    private fun handleSignIn(user: FirebaseUser?) {
         if (user != null) {
+            handleUserCreation(user)
+
             val dashboardIntent = Intent(this, DashboardActivity::class.java)
             startActivity(dashboardIntent)
         }
+    }
+
+    private fun handleUserCreation(user: FirebaseUser) {
+        val firebaseDB: FirebaseFootprints = FirebaseFootprintsSource()
+        val jsonAddress = "Users/${user.uid}"
+        val jsonData = User(user.displayName, user.email)
+        val onChange: (DataSnapshot) -> Unit = {
+            snapshot: DataSnapshot ->
+                if (!snapshot.exists()) {
+                    firebaseDB.push("Users", jsonData, user.uid)
+                }
+        }
+
+        firebaseDB.get(jsonAddress, onChange)
     }
 
     private fun handleLoading(isLoading: Boolean) {
@@ -103,9 +126,9 @@ class MainActivity : AppCompatActivity() {
                 .addOnCompleteListener(this) {  task ->
                     if (task.isSuccessful) {
                         Log.d("MainActivity", "signInWithCredential:success")
+
                         handleLoading(false)
-                        val dashboardIntent = Intent(this, DashboardActivity::class.java)
-                        startActivity(dashboardIntent)
+                        handleSignIn(auth.currentUser)
                         finish()
                     }
                     else {

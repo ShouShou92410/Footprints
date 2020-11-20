@@ -21,8 +21,7 @@
         android:autofillHints=""
         android:ems="10"
         android:hint="@string/location_name"
-        android:inputType="textPersonName"
-        android:text="@string/location_name" />
+        android:inputType="textPersonName" />
 
     <Button
         android:id="@+id/saveLocationButton"
@@ -35,7 +34,7 @@
 
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
-        android:text="@string/save" />
+        android:text="@string/button_save" />
 
     <Button
         android:id="@+id/cancelLocationSaveButton"
@@ -47,5 +46,5 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
-        android:text="@string/cancel" />
+        android:text="@string/button_cancel" />
 </RelativeLayout>
