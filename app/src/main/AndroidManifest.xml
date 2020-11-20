@@ -17,6 +17,16 @@
             android:value="ocr" />
         <!-- To use multiple models: android:value="ocr,model2,model3" -->
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.cpsc571.footprints.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+
         <activity
             android:name=".LocationSelectedActivity"
             android:parentActivityName=".LocationHistoryActivity">
