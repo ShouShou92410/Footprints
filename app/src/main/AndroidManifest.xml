@@ -12,11 +12,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Footprints">
+        <activity android:name=".PurchaseDetailsActivity"></activity>
+
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="ocr" />
-        <!-- To use multiple models: android:value="ocr,model2,model3" -->
-
+            android:value="ocr" /> <!-- To use multiple models: android:value="ocr,model2,model3" -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.cpsc571.footprints.fileprovider"
@@ -24,7 +24,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
 
         <activity
