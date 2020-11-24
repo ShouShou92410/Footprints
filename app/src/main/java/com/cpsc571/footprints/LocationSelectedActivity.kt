@@ -2,8 +2,11 @@ package com.cpsc571.footprints
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -12,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cpsc571.footprints.entity.PurchaseObject
@@ -20,6 +24,8 @@ import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_location_selected.*
+import java.io.File
 
 class LocationSelectedActivity : AppCompatActivity() {
     companion object {
@@ -27,6 +33,7 @@ class LocationSelectedActivity : AppCompatActivity() {
     }
 
     private var locationID: String? = null
+    private lateinit var photoFile: File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,15 +62,17 @@ class LocationSelectedActivity : AppCompatActivity() {
         //Log.d("LocationSelectedActivty", "longitude: ${longitude}, latitude: $latitude")
     }
 
+    private fun getPhotoFile(fileName: String): File {
+        val storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(fileName, ".jpg", storageDirectory)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK && requestCode == RC_RECEIPT_CAPTURE) {
-            val extras: Bundle? = data?.extras
-            val bmp = extras?.get("data")
-
-
-
+            val takenPhoto = BitmapFactory.decodeFile(photoFile.absolutePath)
+            imageView.setImageBitmap(takenPhoto)
         }
         else {
             Toast.makeText(this, "No image found.", Toast.LENGTH_LONG).show()
@@ -71,9 +80,13 @@ class LocationSelectedActivity : AppCompatActivity() {
     }
 
     fun scanReceipt(view: View) {
-        val it: Intent = Intent("android.media.action.IMAGE_CAPTURE")
-        it.putExtra(MediaStore.EXTRA_OUTPUT, "")
-        startActivityForResult(it, RC_RECEIPT_CAPTURE)
+        val fileName: String = System.currentTimeMillis().toString()
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        photoFile = getPhotoFile(fileName)
+
+        val fileProvider = FileProvider.getUriForFile(this, "com.cpsc571.footprints.fileprovider", photoFile)
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
+        startActivityForResult(intent, RC_RECEIPT_CAPTURE)
     }
 
     private fun getAndDisplayPurchases(adapter: RecyclerView.Adapter<LocationSelectedActivity.CustomAdapter.ViewHolder>) {
