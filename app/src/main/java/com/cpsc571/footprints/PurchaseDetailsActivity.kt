@@ -1,11 +1,8 @@
 package com.cpsc571.footprints
 
 import android.app.Dialog
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
@@ -15,10 +12,7 @@ import com.cpsc571.footprints.Adapter.ItemsAdapter
 import com.cpsc571.footprints.entity.*
 import com.cpsc571.footprints.firebase.FirebaseFootprints
 import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
-import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.activity_location_selected.*
 import kotlinx.android.synthetic.main.activity_purchase_details.*
 import kotlinx.android.synthetic.main.image_popup.view.*
 
@@ -36,7 +30,7 @@ class PurchaseDetailsActivity : AppCompatActivity() {
 
     private fun setup() {
         val firebaseFootprints: FirebaseFootprints = FirebaseFootprintsSource()
-        val pdID = "123456789"
+        val pdID = intent.getStringExtra("purchaseDetailKey")
         val onChange: (DataSnapshot) -> Unit = {
                 value: DataSnapshot ->
             purchaseDetail = PurchaseDetailObject(value)
@@ -66,11 +60,7 @@ class PurchaseDetailsActivity : AppCompatActivity() {
         dialog.setContentView(dialogView)
         dialog.show();
 
-        val onChange: (Bitmap) -> Unit = {
-                value: Bitmap ->
-            dialogView.receiptImageView.setImageBitmap(value)
-        }
-
-            //firebase.readBitmap("Deleteme/-MMrZ3nboBJxADgbxAu7", onChange)
+        val imageBitmap = firebase.uncompressBitmapForFirebase(purchaseDetail.imageSource.toString())
+        dialogView.receiptImageView.setImageBitmap(imageBitmap)
     }
 }
