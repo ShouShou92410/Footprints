@@ -90,7 +90,7 @@ object TextScannerService {
             (avg*index + textAndLocation.x)/(index+1)
         })
 
-        allTextLines.forEach {
+        /*allTextLines.forEach {
             tuple ->
             if (Math.abs(tuple.x - averagePriceXDistance) <= errorMargin
                     && prices.all { price -> !price.equals(tuple) }) {
@@ -99,7 +99,7 @@ object TextScannerService {
         }
 
         prices = prices.sortedWith(tupleSorter).toMutableList()
-
+        */
         val allPairings = prices.map {
             price ->
             val matchedItem: TextAndLocationTuple = allTextLines.fold(TextAndLocationTuple("No value associated", -1, -1)) {

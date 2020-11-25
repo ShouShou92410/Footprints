@@ -60,21 +60,24 @@ class MainActivity : AppCompatActivity() {
         // REMOVE THIS ALL BELOW
 
         val textScanner = TextScannerService
-        val receipts = arrayOf(R.drawable.receipt2/*, R.drawable.receipt3, R.drawable.receipt4, R.drawable.receipt5*/)
+        val receipts = arrayOf(R.drawable.receipt25)
         val firebase: FirebaseFootprints = FirebaseFootprintsSource()
         var keys = receipts.map { "" }.toTypedArray()
         for ((index, receipt) in receipts.withIndex()) {
             val btmp = BitmapFactory.decodeStream(resources.openRawResource(receipt))
-            keys[index] = firebase.pushBitmap("Deleteme", btmp) ?: keys[index]
-        }
+            //keys[index] = firebase.pushBitmap("Deleteme", btmp) ?: keys[index]
+            textScanner.getTotalCost(btmp){
 
+            }
+        }
+        /*
         keys.forEach {
             key ->
             firebase.readBitmap("Deleteme/${key}") {
                 bitmap ->
                 textScanner.getTotalCost(bitmap) {}
             }
-        }
+        }*/
 
 
 
