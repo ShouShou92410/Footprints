@@ -1,22 +1,20 @@
-package com.cpsc571.footprints.textScanner
+package com.cpsc571.footprints.vision
 
 import android.graphics.Bitmap
-import android.util.Log
 import com.cpsc571.footprints.entity.ItemObject
-import com.cpsc571.footprints.entity.PurchaseObject
-import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
-import com.google.mlkit.vision.text.TextRecognition
 
-//TODO We need image to have a rotation associated with images when they get taken. User might be taking an image sideways
-// See https://developers.google.com/ml-kit/vision/text-recognition/android#using-a-media.image
-
-object TextScannerService {
+object PriceExtractor {
     private val totalKeywords: Array<String> = arrayOf("total", "balance due", "amount due")
+    private val nonItems: Array<String> = arrayOf("subtotal", "taxes", "change", "visa", "mastercard", "american express", "amax")
+    class TextAndLocationTuple(var text: String, var x: Int, var y: Int) {
+        fun equals(other: TextAndLocationTuple): Boolean {
+            return other.x == x && other.y == y && other.text == text
+        }
+    }
 
     fun getTotalCost(bitmap: Bitmap, onSuccess: (Pair<List<ItemObject>, String>) -> Unit) {
-        scan(bitmap) {
-            text ->
+        MLKitService.scan(bitmap) { text ->
             val pairings = findPricePairings(text)
             val pairingsAndTotal = findTotal(pairings)
 
@@ -24,41 +22,11 @@ object TextScannerService {
         }
     }
 
-    private class TextAndLocationTuple(var text: String, var x: Int, var y: Int) {
-        fun equals(other: TextAndLocationTuple): Boolean {
-            return other.x == x && other.y == y && other.text == (text)
-        }
-    }
-
-    private fun scan(bitmap: Bitmap, onSuccess: (Text) -> Unit) {
-        val inputImg = bitMapToInputImage(bitmap)
-        val recognizer = TextRecognition.getClient()
-
-        recognizer.process(inputImg)
-                .addOnSuccessListener(onSuccess)
-                .addOnFailureListener { e ->
-                    Log.d("TextScanner", e.message.toString())
-                }
-    }
-
-    private fun bitMapToInputImage(bitmap: Bitmap, rotateImageBy: Int = 0): InputImage {
-        return InputImage.fromBitmap(bitmap, rotateImageBy)
-    }
-
     private fun findPricePairings(text: Text): MutableList<ItemObject> {
-        var allTextLinesWithBox = text.textBlocks.flatMap {
+        var errorMargin = estimateHeightOfTextLine(text.textBlocks.flatMap {
             block ->
             block.lines
-        }
-
-        var errorMargin = 0f
-        allTextLinesWithBox.forEachIndexed {
-            index, line ->
-            if (line.boundingBox != null) {
-                errorMargin = (errorMargin * index + (line.boundingBox?.bottom?:0) - (line.boundingBox?.top?:0)) / (index + 1)
-            }
-        }
-        errorMargin /= 2
+        }) / 2
 
         var tupleSorter = Comparator<TextAndLocationTuple> { a, b ->
             if (Math.abs(a.y - b.y) <= errorMargin) {
@@ -74,13 +42,17 @@ object TextScannerService {
             }
         }
 
-        var allTextLines = allTextLinesWithBox.map {
+        var allTextLines = text.textBlocks.flatMap {
+            block ->
+            block.lines
+        }.map {
             line ->
-            TextAndLocationTuple(line.text, line.boundingBox?.left?:-1, line.boundingBox?.top?:-1)
+            TextAndLocationTuple(line.text, line.boundingBox?.left
+                    ?: -1, line.boundingBox?.top ?: -1)
         }.sortedWith (tupleSorter)
 
         var prices = allTextLines.filter {
-            val regex = Regex(".*\\d+\\. ?\\.?\\d\\d\\D*")
+            val regex = Regex(".*[\\dOo]+ ?\\. ?\\.?[\\dOo][\\dOo]\\s*\\D?$")
             it.text.matches(regex)
         }.toMutableList()
 
@@ -117,22 +89,43 @@ object TextScannerService {
         return allPairings
     }
 
+    private fun estimateHeightOfTextLine(textLines: List<Text.Line>): Float {
+        var lineHeight = 0f
+        textLines.forEachIndexed {
+            index, line ->
+            if (line.boundingBox != null) {
+                lineHeight = (lineHeight * index + (line.boundingBox?.bottom?:0) - (line.boundingBox?.top?:0)) / (index + 1)
+            }
+        }
+        return lineHeight
+    }
+
     private fun findTotal(pairings: MutableList<ItemObject>): Pair<List<ItemObject>, String> {
         val total = pairings.find { pair ->
             totalKeywords.any {
                 keyword ->
-                (pair.cost?.contains(keyword, true)?: false) || (pair.name?.contains(keyword, true)?: false)
+                (pair.cost?.contains(keyword, true)?: false) && !(pair.cost?.contains("subtotal", true)?: true)
+                        || (pair.name?.contains(keyword, true)?: false) && !(pair.name?.contains("subtotal", true)?: true)
             }
         }
         if (total != null) {
             pairings.remove(total)
 
-            val priceRegex = Regex("\\d+\\.\\d\\d\\s*.?$")
+            //{Digit or "O" or "o"}+( ?)"."( ?)(.?){Digit or "O" or "o"}{Digit or "O" or "o"}{empty space}*{any non-digit}?ENDOFLINE
+            val priceRegex = Regex("[\\dOo]+ ?\\. ?\\.?[\\dOo][\\dOo]\\s*\\D?$")
             if (total?.cost?.matches(priceRegex) == false) {
                 val reg = priceRegex.find(total?.cost?:"")
                 total.cost = reg?.value
             }
         }
-        return Pair(pairings, total?.cost?:"Not found")
+        pairings.map {
+            pair ->
+            pair.cost = cleanPrice(pair.cost)
+        }.toMutableList()
+        return Pair(pairings, cleanPrice(total?.cost)?:"Not found")
+    }
+
+    private fun cleanPrice(cost: String?): String? {
+        return cost?.replace("O", "0")?.replace(Regex("\\s"), "")
     }
 }

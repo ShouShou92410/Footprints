@@ -1,7 +1,6 @@
 package com.cpsc571.footprints
 
 import android.content.Intent
-import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -13,7 +12,6 @@ import com.cpsc571.footprints.firebase.FirebaseFootprints
 
 
 import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
-import com.cpsc571.footprints.textScanner.TextScannerService
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions

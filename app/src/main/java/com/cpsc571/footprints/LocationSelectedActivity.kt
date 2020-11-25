@@ -17,20 +17,17 @@ import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.cpsc571.footprints.Adapter.ItemsAdapter
 import com.cpsc571.footprints.entity.ItemObject
 import com.cpsc571.footprints.entity.PurchaseDetailObject
 import com.cpsc571.footprints.entity.PurchaseObject
 import com.cpsc571.footprints.firebase.FirebaseFootprints
 import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
-import com.cpsc571.footprints.textScanner.TextScannerService
+import com.cpsc571.footprints.vision.PriceExtractor
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_location_selected.*
-import kotlinx.android.synthetic.main.activity_purchase_details.*
 import java.io.File
-import java.io.Serializable
 
 class LocationSelectedActivity : AppCompatActivity() {
     companion object {
@@ -71,10 +68,10 @@ class LocationSelectedActivity : AppCompatActivity() {
 
     private fun updateData() {
         val firebaseDB: FirebaseFootprints = FirebaseFootprintsSource()
-        val textScannerService = TextScannerService
+        val priceExtractor = PriceExtractor
         val imageBitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
 
-        textScannerService.getTotalCost(imageBitmap) {
+        priceExtractor.getTotalCost(imageBitmap) {
             itemsPairingsAndTotal: Pair<List<ItemObject>, String> ->
 
             val newPurchaseDetailObject = PurchaseDetailObject(itemsPairingsAndTotal.first, firebaseDB.compressBitmapForFirebase(imageBitmap))
