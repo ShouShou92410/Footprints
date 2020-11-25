@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.cpsc571.footprints"
-        minSdkVersion 16
+        minSdkVersion 26
         multiDexEnabled true
         targetSdkVersion 30
         versionCode 1
