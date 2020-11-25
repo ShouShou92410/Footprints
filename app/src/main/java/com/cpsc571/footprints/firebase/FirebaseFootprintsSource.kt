@@ -55,23 +55,17 @@ public class FirebaseFootprintsSource: FirebaseFootprints {
         ref.setValue(null);
     }
 
-    override fun pushBitmap(jsonAddress: String, bitmap: Bitmap): String? {
+    override fun compressBitmapForFirebase(bitmap: Bitmap): String? {
         val outStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
 
         val byteArray = outStream.toByteArray()
-        val img = JpgObject(Base64.encodeToString(byteArray, Base64.DEFAULT))
-        return push(jsonAddress, img)
+        return Base64.encodeToString(byteArray, Base64.DEFAULT)
     }
 
-    override fun readBitmap(jsonAddress: String, onChange: (bitmap: Bitmap) -> Unit) {
-        get(jsonAddress, {
-            snapshot ->
-            val src = (snapshot.value as HashMap<String, String>)["src"] as String
-            val byteArray = Base64.decode(src, Base64.DEFAULT)
-            val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-            onChange(bitmap)
-        })
+    override fun uncompressBitmapForFirebase(src: String): Bitmap {
+        val byteArray = Base64.decode(src, Base64.DEFAULT)
+        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     }
 
     private fun getDatabaseRef(jsonAddress: String): DatabaseReference {
