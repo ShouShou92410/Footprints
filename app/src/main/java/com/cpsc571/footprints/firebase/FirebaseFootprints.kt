@@ -36,16 +36,13 @@ public interface FirebaseFootprints {
     public fun delete(jsonAddress: String)
 
     /**
-     * @param jsonAddress Address where the JpgObject is
-     * @param onChange Callback when bitmap is processed
-     * Reads an image written from writeBitmap()
+     * @param src What to decompress
      */
-    public fun readBitmap(jsonAddress: String, onChange: (bitmap: Bitmap) -> Unit)
+    public fun uncompressBitmapForFirebase(src: String): Bitmap
 
     /**
-     * @param bitmap What to save
-     * @return The key of the pushed value
-     * Saves a bitmap as 64 bit input
+     * @param bitmap What to compress
+     * @return The compressed image as a string
      */
-    public fun pushBitmap(jsonAddress: String, bitmap: Bitmap): String?
+    public fun compressBitmapForFirebase(bitmap: Bitmap): String?
 }
