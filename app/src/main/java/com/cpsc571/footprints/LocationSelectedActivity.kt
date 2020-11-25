@@ -182,6 +182,7 @@ class LocationSelectedActivity : AppCompatActivity() {
 
             viewHolder.itemView.setOnClickListener{ v: View ->
                 val intent = Intent(v.context, PurchaseDetailsActivity::class.java)
+                intent.putExtra("purchaseTotal", dataSet[position].total)
                 intent.putExtra("purchaseDetailKey", dataSet[position].purchaseDetailKey)
                 v.context.startActivity(intent)
             }
