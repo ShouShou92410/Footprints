@@ -2,6 +2,7 @@ package com.cpsc571.footprints.textScanner
 
 import android.graphics.Bitmap
 import android.util.Log
+import com.cpsc571.footprints.entity.PurchaseObject
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -10,13 +11,21 @@ import com.google.mlkit.vision.text.TextRecognition
 // See https://developers.google.com/ml-kit/vision/text-recognition/android#using-a-media.image
 
 object TextScannerService {
-    private class TextAndLocationTuple(var text: String, var x: Int, var y: Int) {}
+    private val totalKeywords: Array<String> = arrayOf("total", "balance due", "amount due")
 
-    fun getTotalCost(bitmap: Bitmap, onSuccess: (Int) -> Unit) {
+    fun getTotalCost(bitmap: Bitmap, onSuccess: (Pair<Array<PurchaseObject>, PurchaseObject?>) -> Unit) {
         scan(bitmap) {
             text ->
-            val total = findTotalCost(text)
-            onSuccess(total)
+            val pairings = findPricePairings(text)
+            val pairingsAndTotal = findTotal(pairings)
+
+            onSuccess(pairingsAndTotal)
+        }
+    }
+
+    private class TextAndLocationTuple(var text: String, var x: Int, var y: Int) {
+        fun equals(other: TextAndLocationTuple): Boolean {
+            return other.x == x && other.y == y && other.text == (text)
         }
     }
 
@@ -35,22 +44,92 @@ object TextScannerService {
         return InputImage.fromBitmap(bitmap, rotateImageBy)
     }
 
-    private fun findTotalCost(text: Text): Int {
-        val prices: Array<String>
-        val allTextLines = text.textBlocks.flatMap {
+    private fun findPricePairings(text: Text): MutableList<PurchaseObject> {
+        var allTextLinesWithBox = text.textBlocks.flatMap {
             block ->
             block.lines
-        }.map {
-            line ->
-            TextAndLocationTuple(line.text, line.boundingBox?.left?:-1, line.boundingBox?.top?:-1)
         }
 
-        /*prices = allTextLines.filter {
-            val regex = Regex(".*\\d+\\. ?\\.?\\d\\d\\D*")
-            it.
-        }.toTypedArray()
-        */
+        var errorMargin = 0f
+        allTextLinesWithBox.forEachIndexed {
+            index, line ->
+            if (line.boundingBox != null) {
+                errorMargin = (errorMargin * index + (line.boundingBox?.bottom?:0) - (line.boundingBox?.top?:0)) / (index + 1)
+            }
+        }
+        errorMargin /= 2
 
-        return 0
+        var tupleSorter = Comparator<TextAndLocationTuple> { a, b ->
+            if (Math.abs(a.y - b.y) <= errorMargin) {
+                if (Math.abs(a.x - b.x) <= errorMargin) {
+                    0
+                } else {
+                    if (Math.max(a.x, b.x) == a.x) 1
+                    else -1
+                }
+            } else {
+                if (Math.max(a.y, b.y) == a.y) 1
+                else -1
+            }
+        }
+
+        var allTextLines = allTextLinesWithBox.map {
+            line ->
+            TextAndLocationTuple(line.text, line.boundingBox?.left?:-1, line.boundingBox?.top?:-1)
+        }.sortedWith (tupleSorter)
+
+        var prices = allTextLines.filter {
+            val regex = Regex(".*\\d+\\. ?\\.?\\d\\d\\D*")
+            it.text.matches(regex)
+        }.toMutableList()
+
+        // Try clustering algorithm maybe
+        val averagePriceXDistance = prices.foldIndexed(0, {
+            index, avg, textAndLocation ->
+            (avg*index + textAndLocation.x)/(index+1)
+        })
+
+        allTextLines.forEach {
+            tuple ->
+            if (Math.abs(tuple.x - averagePriceXDistance) <= errorMargin
+                    && prices.all { price -> !price.equals(tuple) }) {
+                prices.add(tuple)
+            }
+        }
+
+        prices = prices.sortedWith(tupleSorter).toMutableList()
+
+        val allPairings = prices.map {
+            price ->
+            val matchedItem: TextAndLocationTuple = allTextLines.fold(TextAndLocationTuple("No value associated", -1, -1)) {
+                original, item ->
+
+                if (Math.abs(item.y - price.y) < errorMargin
+                        && Math.abs(item.x - price.x) > errorMargin
+                        && Math.abs(item.y - price.y) < Math.abs(original.y - price.y)) {
+                    item
+                } else original
+
+            }
+            PurchaseObject(matchedItem.text, price.text)
+        }.toMutableList()
+        return allPairings
+    }
+
+    private fun findTotal(pairings: MutableList<PurchaseObject>): Pair<Array<PurchaseObject>, PurchaseObject?> {
+        val total = pairings.find { pair ->
+            totalKeywords.any {
+                keyword ->
+                pair.itemName?.contains(keyword, true)?: false
+            }
+        }
+        if (total != null) {
+            pairings.remove(total)
+
+            /*if (total.itemCost == null) {
+                price = total.itemName?.find
+            }*/
+        }
+        return Pair(pairings.toTypedArray(), total)
     }
 }
