@@ -10,7 +10,7 @@ import com.cpsc571.footprints.R
 import com.cpsc571.footprints.entity.ItemObject
 
  class ItemsAdapter(
-    private var itemList: Array<ItemObject>
+    private var itemList: ArrayList<ItemObject>
 ) : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var name: TextView = view.findViewById(R.id.purchasedItemName_tv)
