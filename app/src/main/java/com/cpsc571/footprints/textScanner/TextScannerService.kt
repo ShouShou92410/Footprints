@@ -2,6 +2,7 @@ package com.cpsc571.footprints.textScanner
 
 import android.graphics.Bitmap
 import android.util.Log
+import com.cpsc571.footprints.entity.ItemObject
 import com.cpsc571.footprints.entity.PurchaseObject
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
@@ -13,7 +14,7 @@ import com.google.mlkit.vision.text.TextRecognition
 object TextScannerService {
     private val totalKeywords: Array<String> = arrayOf("total", "balance due", "amount due")
 
-    fun getTotalCost(bitmap: Bitmap, onSuccess: (Pair<Array<PurchaseObject>, PurchaseObject?>) -> Unit) {
+    fun getTotalCost(bitmap: Bitmap, onSuccess: (Pair<Array<ItemObject>, String>) -> Unit) {
         scan(bitmap) {
             text ->
             val pairings = findPricePairings(text)
@@ -44,7 +45,7 @@ object TextScannerService {
         return InputImage.fromBitmap(bitmap, rotateImageBy)
     }
 
-    private fun findPricePairings(text: Text): MutableList<PurchaseObject> {
+    private fun findPricePairings(text: Text): MutableList<ItemObject> {
         var allTextLinesWithBox = text.textBlocks.flatMap {
             block ->
             block.lines
@@ -111,25 +112,27 @@ object TextScannerService {
                 } else original
 
             }
-            PurchaseObject(matchedItem.text, price.text)
+            ItemObject(matchedItem.text, price.text)
         }.toMutableList()
         return allPairings
     }
 
-    private fun findTotal(pairings: MutableList<PurchaseObject>): Pair<Array<PurchaseObject>, PurchaseObject?> {
+    private fun findTotal(pairings: MutableList<ItemObject>): Pair<Array<ItemObject>, String> {
         val total = pairings.find { pair ->
             totalKeywords.any {
                 keyword ->
-                pair.itemName?.contains(keyword, true)?: false
+                (pair.cost?.contains(keyword, true)?: false) || (pair.name?.contains(keyword, true)?: false)
             }
         }
         if (total != null) {
             pairings.remove(total)
 
-            /*if (total.itemCost == null) {
-                price = total.itemName?.find
-            }*/
+            val priceRegex = Regex("\\d+\\.\\d\\d\\s*.?$")
+            if (total?.cost?.matches(priceRegex) == false) {
+                val reg = priceRegex.find(total?.cost?:"")
+                total.cost = reg?.value
+            }
         }
-        return Pair(pairings.toTypedArray(), total)
+        return Pair(pairings.toTypedArray(), total?.cost?:"Not found")
     }
 }
