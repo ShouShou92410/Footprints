@@ -132,34 +132,27 @@
         app:layout_constraintTop_toBottomOf="@+id/displayLocationLatitudeLabel">
 
         <TextView
-            android:id="@+id/purchaseHistoryLabel"
+            android:id="@+id/ReceiptsScannedLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#0097A7"
             android:gravity="center_horizontal"
-            android:text="@string/purchase_history_label">
+            android:text="@string/receipts_scanned_label">
 
         </TextView>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/spendingList"
+            android:id="@+id/receiptList"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
+            android:layout_height="match_parent"
             android:layout_marginTop="16dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/purchaseHistoryLabel">
+            app:layout_constraintTop_toBottomOf="@id/ReceiptsScannedLabel">
 
         </androidx.recyclerview.widget.RecyclerView>
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/app_name"
-            tools:srcCompat="@tools:sample/avatars" />
 
     </LinearLayout>
 
@@ -168,7 +161,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.70" />
+        app:layout_constraintGuide_percent="0.85" />
 
     <Button
         android:id="@+id/scanReceiptButton"
