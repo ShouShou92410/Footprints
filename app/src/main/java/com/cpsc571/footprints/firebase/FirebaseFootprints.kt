@@ -1,5 +1,6 @@
 package com.cpsc571.footprints.firebase
 
+import android.graphics.Bitmap
 import com.cpsc571.footprints.entity.JsonObject
 import com.google.firebase.database.DataSnapshot
 
@@ -24,12 +25,24 @@ public interface FirebaseFootprints {
      * @param jsonAddress Location of where you want to write, starting from root
      * @param jsonData Data you wish to insert
      * @param id Optional id for the new json data
+     * @return The key of the pushed value
      * Inserts a new value at the given address. Existing data will be a sibling of the new data inserted
      */
-    public fun push(jsonAddress: String, jsonData: JsonObject, id: String? = null)
+    public fun push(jsonAddress: String, jsonData: JsonObject, id: String? = null): String?
 
     /**
      * @param jsonAddress Location of where you want to write, starting from root
      */
     public fun delete(jsonAddress: String)
+
+    /**
+     * @param src What to decompress
+     */
+    public fun uncompressBitmapForFirebase(src: String): Bitmap
+
+    /**
+     * @param bitmap What to compress
+     * @return The compressed image as a string
+     */
+    public fun compressBitmapForFirebase(bitmap: Bitmap): String?
 }
