@@ -28,6 +28,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_location_selected.*
 import java.io.File
+import java.io.Serializable
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 
 class LocationSelectedActivity : AppCompatActivity() {
     companion object {
@@ -77,8 +81,8 @@ class LocationSelectedActivity : AppCompatActivity() {
             val newPurchaseDetailObject = PurchaseDetailObject(itemsPairingsAndTotal.first, firebaseDB.compressBitmapForFirebase(imageBitmap))
             val detailKey = firebaseDB.push("PurchaseDetail", newPurchaseDetailObject)
 
-            //TODO Figure out how to do date
-            val newPurchaseObject = PurchaseObject(itemsPairingsAndTotal.second, detailKey, "2020/01/01")
+            val newPurchaseObject = PurchaseObject(itemsPairingsAndTotal.second, detailKey, LocalDate.now().atStartOfDay().toInstant(
+                ZoneOffset.UTC).toEpochMilli())
 
             firebaseDB.push("Receipts/${Firebase.auth.currentUser?.uid}/${locationID}", newPurchaseObject)
             purchases.add(newPurchaseObject)
@@ -171,7 +175,7 @@ class LocationSelectedActivity : AppCompatActivity() {
             // Get element from your dataset at this position and replace the
             // contents of the view with that element
             viewHolder.total.text = dataSet[position].total
-            viewHolder.receiptDate.text = dataSet[position].date
+            viewHolder.receiptDate.text = Instant.ofEpochMilli(dataSet[position].date).atZone(ZoneOffset.UTC).toLocalDate().toString()
             viewHolder.purchaseDetailKey = dataSet[position].purchaseDetailKey.toString()
 
             viewHolder.itemView.setOnClickListener{ v: View ->
