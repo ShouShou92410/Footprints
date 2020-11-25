@@ -8,12 +8,50 @@ import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.cpsc571.footprints.Adapter.ItemsAdapter
+import com.cpsc571.footprints.entity.ItemObject
+import com.cpsc571.footprints.entity.LocationObject
+import com.cpsc571.footprints.entity.LocationTupleObject
+import com.cpsc571.footprints.entity.PurchaseDetailObject
+import com.cpsc571.footprints.firebase.FirebaseFootprints
+import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.main.activity_purchase_details.*
 import kotlinx.android.synthetic.main.image_popup.view.*
 
 class PurchaseDetailsActivity : AppCompatActivity() {
+    private lateinit var purchaseDetail: PurchaseDetailObject
+    private lateinit var itemsAdapter: ItemsAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_purchase_details)
+
+        setup()
+    }
+
+    private fun setup() {
+        val firebaseFootprints: FirebaseFootprints = FirebaseFootprintsSource()
+        val pdID = "123456789"
+        val onChange: (DataSnapshot) -> Unit = {
+                value: DataSnapshot ->
+            purchaseDetail = PurchaseDetailObject(value)
+            setupItemsAdapter()
+        }
+        firebaseFootprints.get("PurchaseDetail/${pdID}", onChange)
+    }
+
+    private fun setupItemsAdapter() {
+        itemsAdapter = ItemsAdapter(purchaseDetail.itemObjects)
+
+        val layoutManager = LinearLayoutManager(applicationContext)
+        purchasedItemList_rv.layoutManager = layoutManager
+        purchasedItemList_rv.itemAnimator = DefaultItemAnimator()
+        purchasedItemList_rv.adapter = itemsAdapter
     }
 
     fun showReceiptImage(view: View) {
