@@ -27,6 +27,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_location_selected.*
 import kotlinx.android.synthetic.main.activity_purchase_details.*
 import java.io.File
+import java.io.Serializable
 
 class LocationSelectedActivity : AppCompatActivity() {
     companion object {
@@ -144,18 +145,6 @@ class LocationSelectedActivity : AppCompatActivity() {
             val rowLayout: FrameLayout = view.findViewById(R.id.receiptRowLayout)
 
             lateinit var purchaseDetailKey: String
-
-
-            init {
-                // Define click listener for the ViewHolder's View.
-                view.setOnClickListener{ v: View ->
-                    val intent = Intent(v.context, PurchaseDetailsActivity::class.java)
-                    intent.putExtra("total", total.text)
-                    intent.putExtra("purchaseDetailKey", purchaseDetailKey)
-                    intent.putExtra("receiptDate",receiptDate.text)
-                    v.context.startActivity(intent)
-                }
-            }
         }
 
         // Create new views (invoked by the layout manager)
@@ -175,6 +164,12 @@ class LocationSelectedActivity : AppCompatActivity() {
             viewHolder.total.text = dataSet[position].total
             viewHolder.receiptDate.text = dataSet[position].date
             viewHolder.purchaseDetailKey = dataSet[position].purchaseDetailKey.toString()
+
+            viewHolder.itemView.setOnClickListener{ v: View ->
+                val intent = Intent(v.context, PurchaseDetailsActivity::class.java)
+                intent.putExtra("purchaseDetailKey", dataSet[position].purchaseDetailKey)
+                v.context.startActivity(intent)
+            }
         }
 
         // Return the size of your dataset (invoked by the layout manager)
