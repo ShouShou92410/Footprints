@@ -21,6 +21,7 @@ import com.cpsc571.footprints.Adapter.ItemsAdapter
 import com.cpsc571.footprints.entity.PurchaseObject
 import com.cpsc571.footprints.firebase.FirebaseFootprints
 import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
+import com.cpsc571.footprints.textScanner.TextScannerService
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.ktx.Firebase
@@ -67,13 +68,20 @@ class LocationSelectedActivity : AppCompatActivity() {
 
     private fun updateData() {
         val firebaseDB: FirebaseFootprints = FirebaseFootprintsSource()
-
+        val textScannerService = TextScannerService
         val imageBitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
-        val newPurchaseObject = PurchaseObject("20", "123456789", "2020/01/01")
 
-        firebaseDB.push("PurchaseDetail", newPurchaseObject)
-        purchases.add(newPurchaseObject)
-        adapter.notifyDataSetChanged()
+        textScannerService.getTotalCost(imageBitmap) {
+            itemsPairingsAndTotal ->
+
+            //TODO Figure out how to do date
+            val newPurchaseObject = PurchaseObject(itemsPairingsAndTotal.second, "123456789", "2020/01/01")
+
+            firebaseDB.push("PurchaseDetail", newPurchaseObject)
+            purchases.add(newPurchaseObject)
+            adapter.notifyDataSetChanged()
+        }
+
     }
 
     private fun getPhotoFile(fileName: String): File {
