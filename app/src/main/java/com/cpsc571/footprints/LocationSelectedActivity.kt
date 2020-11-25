@@ -128,16 +128,16 @@ class LocationSelectedActivity : AppCompatActivity() {
             val rowLayout: FrameLayout = view.findViewById(R.id.purchaseRowLayout)
 
 
-            /*
+
             init {
                 // Define click listener for the ViewHolder's View.
                 view.setOnClickListener{ v: View ->
-                    val intent = Intent(v.context, LocationSelectedActivity::class.java)
+                    val intent = Intent(v.context, PurchaseDetailsActivity::class.java)
                     intent.putExtra("itemName", itemName.text)
                     intent.putExtra("itemCost", itemCost.text)
                     v.context.startActivity(intent)
                 }
-            }*/
+            }
         }
 
         // Create new views (invoked by the layout manager)
