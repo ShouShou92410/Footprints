@@ -90,8 +90,7 @@ class LocationSelectedActivity : AppCompatActivity() {
         val firebaseFootprints: FirebaseFootprints = FirebaseFootprintsSource()
         val currentUser = Firebase.auth.currentUser
         val onChange: (DataSnapshot) -> Unit = {
-            value: DataSnapshot ->
-            val receipts = value
+            receipts: DataSnapshot ->
             if (receipts != null && !receipts.exists()) {
                 // TODO Show empty locations
             } else {

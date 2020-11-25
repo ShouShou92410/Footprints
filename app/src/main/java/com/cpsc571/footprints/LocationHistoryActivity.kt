@@ -34,9 +34,7 @@ class LocationHistoryActivity : AppCompatActivity() {
         val firebaseFootprints: FirebaseFootprints = FirebaseFootprintsSource()
         val currentUser = Firebase.auth.currentUser
         val onChange: (DataSnapshot) -> Unit = {
-            value: DataSnapshot ->
-                //val locations = value.children.find { childSnapshot: DataSnapshot -> childSnapshot.key == "locations" }
-                val locations = value
+            locations: DataSnapshot ->
                 if (locations != null && !locations.exists()) {
                     // TODO Show empty locations
                 } else {
