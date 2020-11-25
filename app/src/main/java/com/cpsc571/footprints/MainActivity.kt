@@ -1,6 +1,7 @@
 package com.cpsc571.footprints
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +13,7 @@ import com.cpsc571.footprints.firebase.FirebaseFootprints
 
 
 import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
+import com.cpsc571.footprints.textScanner.TextScannerService
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -53,6 +55,38 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+
+
+        // REMOVE THIS ALL BELOW
+
+        val textScanner = TextScannerService
+        val receipts = arrayOf(R.drawable.receipt2/*, R.drawable.receipt3, R.drawable.receipt4, R.drawable.receipt5*/)
+        val firebase: FirebaseFootprints = FirebaseFootprintsSource()
+        var keys = receipts.map { "" }.toTypedArray()
+        for ((index, receipt) in receipts.withIndex()) {
+            val btmp = BitmapFactory.decodeStream(resources.openRawResource(receipt))
+            keys[index] = firebase.pushBitmap("Deleteme", btmp) ?: keys[index]
+        }
+
+        keys.forEach {
+            key ->
+            firebase.readBitmap("Deleteme/${key}") {
+                bitmap ->
+                textScanner.getTotalCost(bitmap) {}
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
 
         val currentUser = auth.currentUser
         handleSignIn(currentUser)
