@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cpsc571.footprints.Adapter.ItemsAdapter
+import com.cpsc571.footprints.entity.ItemObject
+import com.cpsc571.footprints.entity.PurchaseDetailObject
 import com.cpsc571.footprints.entity.PurchaseObject
 import com.cpsc571.footprints.firebase.FirebaseFootprints
 import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
@@ -73,16 +75,18 @@ class LocationSelectedActivity : AppCompatActivity() {
         val imageBitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
 
         textScannerService.getTotalCost(imageBitmap) {
-            itemsPairingsAndTotal ->
+            itemsPairingsAndTotal: Pair<List<ItemObject>, String> ->
+
+            val newPurchaseDetailObject = PurchaseDetailObject(itemsPairingsAndTotal.first, firebaseDB.compressBitmapForFirebase(imageBitmap))
+            val detailKey = firebaseDB.push("PurchaseDetail", newPurchaseDetailObject)
 
             //TODO Figure out how to do date
-            val newPurchaseObject = PurchaseObject(itemsPairingsAndTotal.second, "123456789", "2020/01/01")
+            val newPurchaseObject = PurchaseObject(itemsPairingsAndTotal.second, detailKey, "2020/01/01")
 
-            firebaseDB.push("PurchaseDetail", newPurchaseObject)
+            firebaseDB.push("Receipts/${Firebase.auth.currentUser?.uid}/${locationID}", newPurchaseObject)
             purchases.add(newPurchaseObject)
             adapter.notifyDataSetChanged()
         }
-
     }
 
     private fun getPhotoFile(fileName: String): File {

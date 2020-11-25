@@ -14,7 +14,7 @@ import com.google.mlkit.vision.text.TextRecognition
 object TextScannerService {
     private val totalKeywords: Array<String> = arrayOf("total", "balance due", "amount due")
 
-    fun getTotalCost(bitmap: Bitmap, onSuccess: (Pair<Array<ItemObject>, String>) -> Unit) {
+    fun getTotalCost(bitmap: Bitmap, onSuccess: (Pair<List<ItemObject>, String>) -> Unit) {
         scan(bitmap) {
             text ->
             val pairings = findPricePairings(text)
@@ -117,7 +117,7 @@ object TextScannerService {
         return allPairings
     }
 
-    private fun findTotal(pairings: MutableList<ItemObject>): Pair<Array<ItemObject>, String> {
+    private fun findTotal(pairings: MutableList<ItemObject>): Pair<List<ItemObject>, String> {
         val total = pairings.find { pair ->
             totalKeywords.any {
                 keyword ->
@@ -133,6 +133,6 @@ object TextScannerService {
                 total.cost = reg?.value
             }
         }
-        return Pair(pairings.toTypedArray(), total?.cost?:"Not found")
+        return Pair(pairings, total?.cost?:"Not found")
     }
 }
