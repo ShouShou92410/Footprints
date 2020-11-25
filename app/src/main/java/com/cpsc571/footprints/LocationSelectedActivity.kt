@@ -2,16 +2,18 @@ package com.cpsc571.footprints
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cpsc571.footprints.entity.PurchaseObject
@@ -20,6 +22,7 @@ import com.cpsc571.footprints.firebase.FirebaseFootprintsSource
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.ktx.Firebase
+import java.io.File
 
 class LocationSelectedActivity : AppCompatActivity() {
     companion object {
@@ -27,6 +30,7 @@ class LocationSelectedActivity : AppCompatActivity() {
     }
 
     private var locationID: String? = null
+    private lateinit var photoFile: File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,20 +54,22 @@ class LocationSelectedActivity : AppCompatActivity() {
         val locationLatitudeTextView: TextView = findViewById<TextView>(R.id.displayLocationLatitude).apply{
             text = latitude
         }
-        val adapter = setupPurchasesList()
+        val adapter = setupReceiptsList()
         getAndDisplayPurchases(adapter)
         //Log.d("LocationSelectedActivty", "longitude: ${longitude}, latitude: $latitude")
+    }
+
+    private fun getPhotoFile(fileName: String): File {
+        val storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(fileName, ".jpg", storageDirectory)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK && requestCode == RC_RECEIPT_CAPTURE) {
-            val extras: Bundle? = data?.extras
-            val bmp = extras?.get("data")
-
-
-
+            val takenPhoto = BitmapFactory.decodeFile(photoFile.absolutePath)
+            //imageView.setImageBitmap(takenPhoto)
         }
         else {
             Toast.makeText(this, "No image found.", Toast.LENGTH_LONG).show()
@@ -71,9 +77,13 @@ class LocationSelectedActivity : AppCompatActivity() {
     }
 
     fun scanReceipt(view: View) {
-        val it: Intent = Intent("android.media.action.IMAGE_CAPTURE")
-        it.putExtra(MediaStore.EXTRA_OUTPUT, "")
-        startActivityForResult(it, RC_RECEIPT_CAPTURE)
+        val fileName: String = System.currentTimeMillis().toString()
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        photoFile = getPhotoFile(fileName)
+
+        val fileProvider = FileProvider.getUriForFile(this, "com.cpsc571.footprints.fileprovider", photoFile)
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
+        startActivityForResult(intent, RC_RECEIPT_CAPTURE)
     }
 
     private fun getAndDisplayPurchases(adapter: RecyclerView.Adapter<LocationSelectedActivity.CustomAdapter.ViewHolder>) {
@@ -81,25 +91,25 @@ class LocationSelectedActivity : AppCompatActivity() {
         val currentUser = Firebase.auth.currentUser
         val onChange: (DataSnapshot) -> Unit = {
             value: DataSnapshot ->
-            val purchases = value
-            if (purchases != null && !purchases.exists()) {
+            val receipts = value
+            if (receipts != null && !receipts.exists()) {
                 // TODO Show empty locations
             } else {
                 val data = mutableListOf<PurchaseObject>()
-                purchases?.children?.forEach(fun(purchaseSnapshot: DataSnapshot) {
+                receipts?.children?.forEach(fun(purchaseSnapshot: DataSnapshot) {
                     data.add(PurchaseObject(purchaseSnapshot))
                 })
                 val adapter = LocationSelectedActivity.CustomAdapter(data.toTypedArray())
-                setupPurchasesList(adapter)
+                setupReceiptsList(adapter)
             }
         }
-        firebaseFootprints.get("Purchases/${currentUser?.uid}/${locationID}", onChange)
+        firebaseFootprints.get("Receipts/${currentUser?.uid}/${locationID}", onChange)
     }
 
-    private fun setupPurchasesList(adapter: LocationSelectedActivity.CustomAdapter = LocationSelectedActivity.CustomAdapter(arrayOf())): RecyclerView.Adapter<LocationSelectedActivity.CustomAdapter.ViewHolder> {
-        val purchaseList = findViewById<RecyclerView>(R.id.spendingList)
-        purchaseList.adapter = adapter
-        purchaseList.layoutManager = LinearLayoutManager(this)
+    private fun setupReceiptsList(adapter: LocationSelectedActivity.CustomAdapter = LocationSelectedActivity.CustomAdapter(arrayOf())): RecyclerView.Adapter<LocationSelectedActivity.CustomAdapter.ViewHolder> {
+        val receiptList = findViewById<RecyclerView>(R.id.receiptList)
+        receiptList.adapter = adapter
+        receiptList.layoutManager = LinearLayoutManager(this)
         return adapter
     }
 
@@ -110,28 +120,30 @@ class LocationSelectedActivity : AppCompatActivity() {
         This is where you define what the list elements are
          */
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val itemName: TextView = view.findViewById(R.id.itemNameTextView)
-            val itemCost: TextView = view.findViewById(R.id.itemCostTextView)
-            val rowLayout: FrameLayout = view.findViewById(R.id.purchaseRowLayout)
+            val total: TextView = view.findViewById(R.id.totalTextView)
+            val receiptDate: TextView = view.findViewById(R.id.receiptDateTextView)
+            val rowLayout: FrameLayout = view.findViewById(R.id.receiptRowLayout)
+
+            lateinit var purchaseDetailKey: String
 
 
-            /*
             init {
                 // Define click listener for the ViewHolder's View.
                 view.setOnClickListener{ v: View ->
-                    val intent = Intent(v.context, LocationSelectedActivity::class.java)
-                    intent.putExtra("itemName", itemName.text)
-                    intent.putExtra("itemCost", itemCost.text)
+                    val intent = Intent(v.context, PurchaseDetailsActivity::class.java)
+                    intent.putExtra("total", total.text)
+                    intent.putExtra("purchaseDetailKey", purchaseDetailKey)
+                    intent.putExtra("receiptDate",receiptDate.text)
                     v.context.startActivity(intent)
                 }
-            }*/
+            }
         }
 
         // Create new views (invoked by the layout manager)
         override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
             // Create a new view, which defines the UI of the list item
             val view = LayoutInflater.from(viewGroup.context)
-                    .inflate(R.layout.purchase_history_purchases_iterable, viewGroup, false)
+                    .inflate(R.layout.scanned_receipts_iterable, viewGroup, false)
 
             return ViewHolder(view)
         }
@@ -141,8 +153,9 @@ class LocationSelectedActivity : AppCompatActivity() {
 
             // Get element from your dataset at this position and replace the
             // contents of the view with that element
-            viewHolder.itemName.text = dataSet[position].itemName
-            viewHolder.itemCost.text = dataSet[position].itemCost
+            viewHolder.total.text = dataSet[position].total
+            viewHolder.receiptDate.text = dataSet[position].date
+            viewHolder.purchaseDetailKey = dataSet[position].purchaseDetailKey.toString()
         }
 
         // Return the size of your dataset (invoked by the layout manager)

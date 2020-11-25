@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/purchaseRowLayout"
+    android:id="@+id/receiptRowLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#FFA000"
@@ -16,7 +16,7 @@
         tools:layout_editor_absoluteX="10dp">
 
         <TextView
-            android:id="@+id/itemCostTextView"
+            android:id="@+id/totalTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
@@ -26,14 +26,14 @@
             android:layout_marginRight="5dp"
             android:layout_marginBottom="5dp"
             android:gravity="center_horizontal"
-            android:text="itemCost"
+            android:text="receiptTotal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/itemNameTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/receiptDateTextView" />
 
         <TextView
-            android:id="@+id/itemNameTextView"
+            android:id="@+id/receiptDateTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
@@ -42,7 +42,7 @@
             android:layout_marginEnd="5dp"
             android:layout_marginRight="5dp"
             android:gravity="center_horizontal"
-            android:text="itemName"
+            android:text="receiptDate"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

@@ -11,4 +11,5 @@
     <string name="location_latitude_label">Latitude:</string>
     <string name="purchase_history_label">Purchase History</string>
     <string name="button_scan_receipt">Scan Receipt</string>
+    <string name="receipts_scanned_label">Receipts Scanned</string>
 </resources>

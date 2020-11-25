@@ -4,11 +4,13 @@ import android.util.Log
 import com.google.firebase.database.DataSnapshot
 
 class PurchaseObject(
-        var itemName: String?,
-        var itemCost: String?
+        var total: String?,
+        var purchaseDetailKey: String?,
+        var date: String?
 ): JsonObject()
 {
     constructor(firebaseObject: DataSnapshot):
-            this(firebaseObject.child("itemName").value.toString(),
-                    firebaseObject.child("itemCost").value.toString())
+            this(firebaseObject.child("total").value.toString(),
+                    firebaseObject.child("purchaseDetailKey").value.toString(),
+                        firebaseObject.child("date").value.toString())
 }
