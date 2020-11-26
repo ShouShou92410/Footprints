@@ -138,6 +138,9 @@ object PriceExtractor {
     }
 
     private fun cleanPrice(cost: String?): String? {
-        return cost?.replace("O", "0")?.replace(Regex("\\s"), "")
+        return (cost?.replace("O", "0")?.
+                replace(Regex("[\\s]"), "")?.
+                replace(Regex("\\D*$"), "")?.
+                replace(Regex("\\.\\."), "."))
     }
 }
