@@ -69,7 +69,6 @@ class LocationSelectedActivity : AppCompatActivity() {
         setup()
         //Log.d("LocationSelectedActivty", "longitude: ${longitude}, latitude: $latitude")
     }
-
     private fun updateData() {
         val firebaseDB: FirebaseFootprints = FirebaseFootprintsSource()
         val priceExtractor = PriceExtractor
@@ -78,16 +77,39 @@ class LocationSelectedActivity : AppCompatActivity() {
         priceExtractor.getTotalCost(imageBitmap) {
             itemsPairingsAndTotal: Pair<List<ItemObject>, String> ->
 
-            val newPurchaseDetailObject = PurchaseDetailObject(itemsPairingsAndTotal.first, firebaseDB.compressBitmapForFirebase(imageBitmap))
-            val detailKey = firebaseDB.push("PurchaseDetail", newPurchaseDetailObject)
+            if (verifyResult(itemsPairingsAndTotal)) {
+                val newPurchaseDetailObject = PurchaseDetailObject(itemsPairingsAndTotal.first, firebaseDB.compressBitmapForFirebase(imageBitmap))
+                val detailKey = firebaseDB.push("PurchaseDetail", newPurchaseDetailObject)
 
-            val newPurchaseObject = PurchaseObject(itemsPairingsAndTotal.second, detailKey, LocalDate.now().atStartOfDay().toInstant(
-                ZoneOffset.UTC).toEpochMilli())
+                val newPurchaseObject = PurchaseObject(itemsPairingsAndTotal.second, detailKey, LocalDate.now().atStartOfDay().toInstant(
+                    ZoneOffset.UTC).toEpochMilli())
 
-            firebaseDB.push("Receipts/${Firebase.auth.currentUser?.uid}/${locationID}", newPurchaseObject)
-            purchases.add(newPurchaseObject)
-            adapter.notifyDataSetChanged()
+                firebaseDB.push("Receipts/${Firebase.auth.currentUser?.uid}/${locationID}", newPurchaseObject)
+                purchases.add(newPurchaseObject)
+                adapter.notifyDataSetChanged()
+
+                Toast.makeText(this, "Purchase saved.", Toast.LENGTH_LONG).show()
+            }
+            else {
+                Toast.makeText(this, "Unrecognizable receipt.", Toast.LENGTH_LONG).show()
+            }
         }
+    }
+
+    // Verify result from scanned receipt
+    private fun verifyResult(itemsPairingsAndTotal: Pair<List<ItemObject>, String>): Boolean {
+        val (items, total) = itemsPairingsAndTotal
+        var isValidReceipt = true
+
+        isValidReceipt = total.toDoubleOrNull() != null
+
+        var i = 0;
+        while (isValidReceipt && i < items.size) {
+            isValidReceipt = items[i].cost?.toDoubleOrNull() != null
+            i++
+        }
+
+        return isValidReceipt
     }
 
     private fun getPhotoFile(fileName: String): File {
