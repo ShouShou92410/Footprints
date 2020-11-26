@@ -5,7 +5,7 @@ import com.cpsc571.footprints.entity.ItemObject
 import com.google.mlkit.vision.text.Text
 
 object PriceExtractor {
-    private val totalKeywords: Array<String> = arrayOf("total", "balance due", "amount due")
+    private val totalKeywords: Array<String> = arrayOf("total", "balance due", "amount due", "due")
     private val nonItems: Array<String> = arrayOf("subtotal", "taxes", "change", "visa", "mastercard", "american express", "amax", "cash", "loyalty", "visa payment")
     private val forceReplace: Array<Pair<Regex, String>> = arrayOf(
         Pair(Regex("(\\d) ?- ?(\\d+$)"), "$1.$2"), // Receipt5 reads total as "$24 -50" rather than "$24.50"
