@@ -30,6 +30,9 @@ class PurchaseDetailsActivity : AppCompatActivity() {
 
     private fun setup() {
         val firebaseFootprints: FirebaseFootprints = FirebaseFootprintsSource()
+
+        purchasedTotalCost_tv.text = intent.getStringExtra("purchaseTotal")
+
         val pdID = intent.getStringExtra("purchaseDetailKey")
         val onChange: (DataSnapshot) -> Unit = {
                 value: DataSnapshot ->

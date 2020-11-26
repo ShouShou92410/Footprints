@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.TextView
+import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -87,13 +88,17 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
 
         if (requestCode == RC_LOCATION) {
             if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                location_tv.text = "Tracker feature requires location permission to work."
+                trackButton.text = "No permission"
+                Toast.makeText(this, "Location permission is required.", Toast.LENGTH_LONG).show()
+            }
+            else {
+                trackButton.isClickable = true
             }
         }
     }
 
     fun gpsButtonListenerEnable(){
-        val toggle: ToggleButton = findViewById(R.id.toggleButton2)
+        val toggle: ToggleButton = findViewById(R.id.trackButton)
         toggle.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // The toggle is enabled
@@ -160,6 +165,8 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
                     val jsonData = LocationObject(defaultNameString,localAddress,location.longitude.toString(),location.latitude.toString())
                     firebaseDB.push(jsonAddress, jsonData)
                     isPromptOpen = false
+
+                    Toast.makeText(this, "Location saved.", Toast.LENGTH_LONG).show()
                 }
             }
         }
