@@ -5,7 +5,7 @@
     <string name="location_name">Location Name</string>
     <string name="button_save">Save</string>
     <string name="button_cancel">cancel</string>
-    <string name="location_name_label">LocationName:</string>
+    <string name="location_name_label">Name:</string>
     <string name="location_address_label">Address:</string>
     <string name="location_longitude_label">Longitude:</string>
     <string name="location_latitude_label">Latitude:</string>
