@@ -5,7 +5,7 @@ import com.cpsc571.footprints.entity.ItemObject
 import com.google.mlkit.vision.text.Text
 
 object PriceExtractor {
-    private val totalKeywords: Array<String> = arrayOf("total", "balance due", "amount due", "due")
+    private val totalKeywords: Array<String> = arrayOf("total", "balance due", "amount due", "due", "amount")
     private val nonItems: Array<String> = arrayOf("GST", "subtotal", "taxes", "change", "visa", "mastercard", "american express", "amax", "cash", "loyalty", "visa payment")
     private val forceReplace: Array<Pair<Regex, String>> = arrayOf(
         Pair(Regex("(\\d) ?- ?(\\d+$)"), "$1.$2"), // Receipt5 reads total as "$24 -50" rather than "$24.50"
@@ -60,7 +60,7 @@ object PriceExtractor {
         }.sortedWith (tupleSorter)
 
         var prices = allTextLines.filter {
-            val regex = Regex(".*[\\dOo]+ ?\\. ?\\.?[\\dOo][\\dOo]\\s*\\D?$")
+            val regex = Regex(".*[\\dOo]+ ?\\. ?\\.?[\\dOo][\\dOo]?\\s*\\D?$")
             it.text?.matches(regex)?:false
         }.toMutableList()
 
@@ -107,7 +107,7 @@ object PriceExtractor {
             finalPairings = pairings.subList(0, pairings.indexOf(total))
 
             //{Digit or "O" or "o"}+( ?)"."( ?)(.?){Digit or "O" or "o"}{Digit or "O" or "o"}{empty space}*{any non-digit}?ENDOFLINE
-            val priceRegex = Regex("[\\dOo]+ ?\\. ?\\.?[\\dOo][\\dOo]\\s*\\D?$")
+            val priceRegex = Regex("[\\dOo]+ ?\\. ?\\.?[\\dOo][\\dOo]?\\s*\\D?$")
             if (priceRegex.containsMatchIn(total?.cost?:"")) {
                 val reg = priceRegex.find(total?.cost?:"")
                 total.cost = reg?.value
