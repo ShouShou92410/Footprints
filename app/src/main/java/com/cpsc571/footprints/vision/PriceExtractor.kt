@@ -6,8 +6,13 @@ import com.google.mlkit.vision.text.Text
 
 object PriceExtractor {
     private val totalKeywords: Array<String> = arrayOf("total", "balance due", "amount due")
-    private val nonItems: Array<String> = arrayOf("subtotal", "taxes", "change", "visa", "mastercard", "american express", "amax")
-    class TextAndLocationTuple(var text: String, var x: Int, var y: Int) {
+    private val nonItems: Array<String> = arrayOf("subtotal", "taxes", "change", "visa", "mastercard", "american express", "amax", "cash", "loyalty", "visa payment")
+    private val forceReplace: Array<Pair<Regex, String>> = arrayOf(
+        Pair(Regex("(\\d) ?- ?(\\d+$)"), "$1.$2"), // Receipt5 reads total as "$24 -50" rather than "$24.50"
+        Pair(Regex("(\\d) ?, ?(\\d+$)"), "$1.$2") // Receipt16 reads some items as "23,43" as opposed to "23.43"
+    )
+    private const val minStringMatchError = 2
+    class TextAndLocationTuple(var text: String?, var x: Int, var y: Int) {
         fun equals(other: TextAndLocationTuple): Boolean {
             return other.x == x && other.y == y && other.text == text
         }
@@ -48,34 +53,22 @@ object PriceExtractor {
             block.lines
         }.map {
             line ->
-            TextAndLocationTuple(line.text, line.boundingBox?.left
+            var fixedText = line.text
+            forceReplace.forEach { pair -> fixedText =  pair.first.replace(fixedText, pair.second)}
+            TextAndLocationTuple(fixedText, line.boundingBox?.left
                     ?: -1, line.boundingBox?.top ?: -1)
         }.sortedWith (tupleSorter)
 
         var prices = allTextLines.filter {
             val regex = Regex(".*[\\dOo]+ ?\\. ?\\.?[\\dOo][\\dOo]\\s*\\D?$")
-            it.text.matches(regex)
+            it.text?.matches(regex)?:false
         }.toMutableList()
 
         // Try clustering algorithm maybe
-        val averagePriceXDistance = prices.foldIndexed(0, {
-            index, avg, textAndLocation ->
-            (avg*index + textAndLocation.x)/(index+1)
-        })
-
-        allTextLines.forEach {
-            tuple ->
-            if (Math.abs(tuple.x - averagePriceXDistance) <= errorMargin
-                    && prices.all { price -> !price.equals(tuple) }) {
-                prices.add(tuple)
-            }
-        }
-
-        prices = prices.sortedWith(tupleSorter).toMutableList()
 
         val allPairings = prices.map {
             price ->
-            val matchedItem: TextAndLocationTuple = allTextLines.fold(TextAndLocationTuple("No value associated", -1, -1)) {
+            val matchedItem: TextAndLocationTuple = allTextLines.fold(TextAndLocationTuple(null, -1, -1)) {
                 original, item ->
 
                 if (Math.abs(item.y - price.y) < errorMargin
@@ -105,33 +98,34 @@ object PriceExtractor {
         val total = pairings.find { pair ->
             totalKeywords.any {
                 keyword ->
-                (pair.cost?.contains(keyword, true)?: false) && !(pair.cost?.contains("subtotal", true)?: true)
-                        || (pair.name?.contains(keyword, true)?: false) && !(pair.name?.contains("subtotal", true)?: true)
+                (pair.cost?.contains(keyword, true)?: false) && !(pair.cost?.contains("subtotal", true)?: true) || (pair.name?.contains(keyword, true)?: false) && !(pair.name?.contains("subtotal", true)?: true)
             }
         }
+        var finalPairings = pairings
         if (total != null) {
-            pairings.remove(total)
+            finalPairings = pairings.subList(0, pairings.indexOf(total))
 
             //{Digit or "O" or "o"}+( ?)"."( ?)(.?){Digit or "O" or "o"}{Digit or "O" or "o"}{empty space}*{any non-digit}?ENDOFLINE
             val priceRegex = Regex("[\\dOo]+ ?\\. ?\\.?[\\dOo][\\dOo]\\s*\\D?$")
-            if (total?.cost?.matches(priceRegex) == false) {
+            if (priceRegex.containsMatchIn(total?.cost?:"")) {
                 val reg = priceRegex.find(total?.cost?:"")
                 total.cost = reg?.value
             }
         }
-        pairings.map {
+        finalPairings.forEach {
             pair ->
             pair.cost = cleanPrice(pair.cost)
-        }.toMutableList()
-        return Pair(pairings, cleanPrice(total?.cost)?:"Not found")
+            pair.name = pair.name?:"No value associated"
+        }
+        return Pair(finalPairings, cleanPrice(total?.cost)?:"Not found")
     }
 
     private fun removeNonItems(pairings: MutableList<ItemObject>): MutableList<ItemObject> {
         pairings.removeAll {
                 item ->
             nonItems.any {
-                    nonItemName ->
-                item.cost?.contains(nonItemName, true)?:false || item.name?.contains(nonItemName, true)?:false
+                nonItemName ->
+                calculateLevenschtein(item.name, nonItemName) <= minStringMatchError
             }
         }
         return pairings
@@ -143,4 +137,49 @@ object PriceExtractor {
                 replace(Regex("\\D*$"), "")?.
                 replace(Regex("\\.\\."), "."))
     }
+
+    private fun calculateLevenschtein(s1: String?, s2: String): Int {
+        return if (s1 == null) {
+            s2.length
+        } else {
+            val memo =
+                Array(s1.length + 1) { IntArray(s2.length + 1) }
+            for (i in 0..s1.length) {
+                for (j in 0..s2.length) {
+                    memo[i][j] = -1
+                }
+            }
+            levenschtein(s1, s2, 0, 0, memo)
+        }
+    }
+
+    private fun levenschtein(
+        s1: String,
+        s2: String,
+        length1: Int,
+        length2: Int,
+        memo: Array<IntArray>
+    ): Int {
+        return if (memo[length1][length2] != -1) {
+            memo[length1][length2]
+        } else if (s1.length == length1 || s2.length == length2) {
+            val ans = Math.max(s1.length - length1, s2.length - length2)
+            memo[length1][length2] = ans
+            ans
+        } else {
+            val lev1 = if (s1[length1].equals(s2[length2], true)) levenschtein(
+                s1,
+                s2,
+                length1 + 1,
+                length2 + 1,
+                memo
+            ) else levenschtein(s1, s2, length1 + 1, length2 + 1, memo) + 1
+            val lev2 = levenschtein(s1, s2, length1 + 1, length2, memo) + 1
+            val lev3 = levenschtein(s1, s2, length1, length2 + 1, memo) + 1
+            val ans = Math.min(Math.min(lev1, lev2), lev3)
+            memo[length1][length2] = ans
+            ans
+        }
+    }
+
 }
