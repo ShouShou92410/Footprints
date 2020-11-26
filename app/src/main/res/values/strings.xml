@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Footprints</string>
     <string name="button_location_history_page">Location History</string>
-    <string name="button_tracker_page">GPS Tracker</string>
+    <string name="button_tracker_page">Tracker</string>
     <string name="location_name">Location Name</string>
     <string name="button_save">Save</string>
     <string name="button_cancel">cancel</string>

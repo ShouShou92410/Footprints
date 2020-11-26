@@ -119,6 +119,9 @@ class TrackerActivity : AppCompatActivity(), LocationListener {
         {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), RC_LOCATION)
         }
+        else{
+            trackButton.isClickable = true
+        }
     }
 
     @SuppressLint("MissingPermission")

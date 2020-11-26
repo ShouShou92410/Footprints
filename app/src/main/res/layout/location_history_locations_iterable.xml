@@ -15,12 +15,15 @@
             android:id="@+id/locationName"
             android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:text="Location name here" />
+            android:text="Location name here"
+            android:textColor="@color/cardview_light_background"/>
 
         <TextView
             android:id="@+id/locationAddress"
             android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:text="Location address here" />
+            android:text="Location address here"
+            android:textColor="@color/cardview_light_background"/>
+
     </LinearLayout>
 </FrameLayout>

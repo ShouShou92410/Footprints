@@ -7,14 +7,30 @@
     android:layout_height="match_parent"
     tools:context=".TrackerActivity">
 
+    <TextView
+        android:id="@+id/trackerTextView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center_horizontal"
+        android:text="Tracker"
+        android:textColor="@color/design_default_color_primary"
+        android:textSize="40dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/trackButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ToggleButton
         android:id="@+id/trackButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:clickable="false"
         android:text="ToggleButton"
         android:textOff="Press to track"
         android:textOn="Tracking"
+        android:textColor="@color/cardview_light_background"
+        android:background="@drawable/circle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

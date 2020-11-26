@@ -5,7 +5,7 @@
     android:id="@+id/receiptRowLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FFA000"
+    android:background="@drawable/border"
     android:layout_margin="3dp">
 
     <LinearLayout
@@ -27,6 +27,7 @@
             android:layout_marginBottom="5dp"
             android:gravity="center_horizontal"
             android:text="receiptTotal"
+            android:textColor="@color/cardview_light_background"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -43,6 +44,7 @@
             android:layout_marginRight="5dp"
             android:gravity="center_horizontal"
             android:text="receiptDate"
+            android:textColor="@color/cardview_light_background"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

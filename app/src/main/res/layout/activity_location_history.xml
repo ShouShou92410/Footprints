@@ -13,10 +13,13 @@
         <TextView
             android:id="@+id/textView2"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="50dp"
             android:text="Location History"
             android:textAllCaps="false"
-            android:textSize="24sp" />
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:textColor="@color/design_default_color_primary"
+            android:gravity="center_horizontal"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/locationList"
             android:layout_height="match_parent"

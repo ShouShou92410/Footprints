@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
     tools:context=".LocationSelectedActivity">
 
     <TextView
@@ -48,7 +47,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="#3ED5E4"
         android:gravity="center_horizontal"
         android:text="@string/location_name_label"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
@@ -61,7 +59,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="#3ED5E4"
         android:gravity="center_horizontal"
         android:text="@string/location_address_label"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
@@ -73,7 +70,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="#3ED5E4"
         android:gravity="center_horizontal"
         android:text="@string/location_longitude_label"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
@@ -85,7 +81,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="#3ED5E4"
         android:gravity="center_horizontal"
         android:text="@string/location_latitude_label"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
@@ -135,7 +130,6 @@
             android:id="@+id/ReceiptsScannedLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#0097A7"
             android:gravity="center_horizontal"
             android:text="@string/receipts_scanned_label">
 

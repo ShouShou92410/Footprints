@@ -8,6 +8,23 @@
     tools:context=".DashboardActivity">
 
     <Button
+        android:id="@+id/trackerPageButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="32dp"
+        android:hint="@string/button_tracker_page"
+        android:onClick="trackerPage"
+        android:text="Tracker"
+        app:layout_constraintBottom_toTopOf="@+id/locationHistoryPageButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
         android:id="@+id/signOutButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -15,13 +32,12 @@
         android:layout_marginLeft="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp"
         android:layout_weight="1"
-        android:text="sign out"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Sign out"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="435dp" />
 
     <Button
         android:id="@+id/locationHistoryPageButton"
@@ -31,7 +47,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="32dp"
         android:hint="@string/button_location_history_page"
         android:onClick="locationHistoryPage"
         android:text="Location History"
@@ -40,19 +56,18 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/trackerPageButton"
+    <TextView
+        android:id="@+id/DashboardTextView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="48dp"
-        android:hint="@string/button_tracker_page"
-        android:onClick="trackerPage"
-        android:text="GPS Tracker"
-        app:layout_constraintBottom_toTopOf="@+id/locationHistoryPageButton"
+        android:layout_height="0dp"
+        android:gravity="center_horizontal"
+        android:text="Dashboard"
+        android:textSize="40dp"
+        android:textStyle="bold"
+        android:textColor="@color/design_default_color_primary"
+        app:layout_constraintBottom_toTopOf="@+id/trackerPageButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
