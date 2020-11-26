@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
 
         // REMOVE THIS ALL BELOW
-
+        /*
         val textScanner = PriceExtractor
         val receipts = arrayOf(R.drawable.receipt8, R.drawable.receipt13, R.drawable.receipt15)
         for ((index, receipt) in receipts.withIndex()) {
@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
             textScanner.getTotalCost(btmp) {}
         }
 
-
+        */
 
 
 
