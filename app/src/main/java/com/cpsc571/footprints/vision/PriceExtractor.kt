@@ -5,8 +5,8 @@ import com.cpsc571.footprints.entity.ItemObject
 import com.google.mlkit.vision.text.Text
 
 object PriceExtractor {
-    private val totalKeywords: Array<String> = arrayOf("total", "balance due", "amount due")
-    private val nonItems: Array<String> = arrayOf("subtotal", "taxes", "change", "visa", "mastercard", "american express", "amax", "cash", "loyalty", "visa payment")
+    private val totalKeywords: Array<String> = arrayOf("total", "balance due", "amount due", "due")
+    private val nonItems: Array<String> = arrayOf("GST", "subtotal", "taxes", "change", "visa", "mastercard", "american express", "amax", "cash", "loyalty", "visa payment")
     private val forceReplace: Array<Pair<Regex, String>> = arrayOf(
         Pair(Regex("(\\d) ?- ?(\\d+$)"), "$1.$2"), // Receipt5 reads total as "$24 -50" rather than "$24.50"
         Pair(Regex("(\\d) ?, ?(\\d+$)"), "$1.$2") // Receipt16 reads some items as "23,43" as opposed to "23.43"
@@ -96,9 +96,10 @@ object PriceExtractor {
 
     private fun findTotal(pairings: MutableList<ItemObject>): Pair<List<ItemObject>, String> {
         val total = pairings.find { pair ->
+            val productName = (pair.name?:pair.cost?:"").replace(Regex("\\d"), "").replace(Regex(":"), "").replace(Regex("\\s"), "")
             totalKeywords.any {
                 keyword ->
-                (pair.cost?.contains(keyword, true)?: false) && !(pair.cost?.contains("subtotal", true)?: true) || (pair.name?.contains(keyword, true)?: false) && !(pair.name?.contains("subtotal", true)?: true)
+                calculateLevenschtein(productName, keyword) <= minStringMatchError
             }
         }
         var finalPairings = pairings
