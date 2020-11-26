@@ -69,7 +69,6 @@ class LocationSelectedActivity : AppCompatActivity() {
         setup()
         //Log.d("LocationSelectedActivty", "longitude: ${longitude}, latitude: $latitude")
     }
-
     private fun updateData() {
         val firebaseDB: FirebaseFootprints = FirebaseFootprintsSource()
         val priceExtractor = PriceExtractor
@@ -78,15 +77,23 @@ class LocationSelectedActivity : AppCompatActivity() {
         priceExtractor.getTotalCost(imageBitmap) {
             itemsPairingsAndTotal: Pair<List<ItemObject>, String> ->
 
-            val newPurchaseDetailObject = PurchaseDetailObject(itemsPairingsAndTotal.first, firebaseDB.compressBitmapForFirebase(imageBitmap))
-            val detailKey = firebaseDB.push("PurchaseDetail", newPurchaseDetailObject)
+            val (items, total) = itemsPairingsAndTotal
+            if (items.isNotEmpty() && total != "Not Found") {
+                val newPurchaseDetailObject = PurchaseDetailObject(itemsPairingsAndTotal.first, firebaseDB.compressBitmapForFirebase(imageBitmap))
+                val detailKey = firebaseDB.push("PurchaseDetail", newPurchaseDetailObject)
 
-            val newPurchaseObject = PurchaseObject(itemsPairingsAndTotal.second, detailKey, LocalDate.now().atStartOfDay().toInstant(
-                ZoneOffset.UTC).toEpochMilli())
+                val newPurchaseObject = PurchaseObject(itemsPairingsAndTotal.second, detailKey, LocalDate.now().atStartOfDay().toInstant(
+                    ZoneOffset.UTC).toEpochMilli())
 
-            firebaseDB.push("Receipts/${Firebase.auth.currentUser?.uid}/${locationID}", newPurchaseObject)
-            purchases.add(newPurchaseObject)
-            adapter.notifyDataSetChanged()
+                firebaseDB.push("Receipts/${Firebase.auth.currentUser?.uid}/${locationID}", newPurchaseObject)
+                purchases.add(newPurchaseObject)
+                adapter.notifyDataSetChanged()
+
+                Toast.makeText(this, "Purchase saved.", Toast.LENGTH_LONG).show()
+            }
+            else {
+                Toast.makeText(this, "Unrecognizable receipt.", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -180,6 +187,7 @@ class LocationSelectedActivity : AppCompatActivity() {
 
             viewHolder.itemView.setOnClickListener{ v: View ->
                 val intent = Intent(v.context, PurchaseDetailsActivity::class.java)
+                intent.putExtra("purchaseTotal", dataSet[position].total)
                 intent.putExtra("purchaseDetailKey", dataSet[position].purchaseDetailKey)
                 v.context.startActivity(intent)
             }
