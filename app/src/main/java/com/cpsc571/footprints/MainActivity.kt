@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         // REMOVE THIS ALL BELOW
 
         val textScanner = PriceExtractor
-        val receipts = arrayOf(R.drawable.receipt2/*, R.drawable.receipt3, R.drawable.receipt4, R.drawable.receipt5*/)
+        val receipts = arrayOf(R.drawable.receipt5/*, R.drawable.receipt3, R.drawable.receipt4, R.drawable.receipt5*/)
         for ((index, receipt) in receipts.withIndex()) {
             val btmp = BitmapFactory.decodeStream(resources.openRawResource(receipt))
             textScanner.getTotalCost(btmp) {}

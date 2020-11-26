@@ -131,7 +131,7 @@ object PriceExtractor {
                 item ->
             nonItems.any {
                     nonItemName ->
-                item.cost?.contains(nonItemName)?:false || item.name?.contains(nonItemName)?:false
+                item.cost?.contains(nonItemName, true)?:false || item.name?.contains(nonItemName, true)?:false
             }
         }
         return pairings
