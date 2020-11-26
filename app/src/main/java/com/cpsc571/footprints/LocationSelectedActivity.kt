@@ -77,7 +77,8 @@ class LocationSelectedActivity : AppCompatActivity() {
         priceExtractor.getTotalCost(imageBitmap) {
             itemsPairingsAndTotal: Pair<List<ItemObject>, String> ->
 
-            if (verifyResult(itemsPairingsAndTotal)) {
+            val (items, total) = itemsPairingsAndTotal
+            if (items.isNotEmpty() && total != "Not Found") {
                 val newPurchaseDetailObject = PurchaseDetailObject(itemsPairingsAndTotal.first, firebaseDB.compressBitmapForFirebase(imageBitmap))
                 val detailKey = firebaseDB.push("PurchaseDetail", newPurchaseDetailObject)
 
@@ -94,22 +95,6 @@ class LocationSelectedActivity : AppCompatActivity() {
                 Toast.makeText(this, "Unrecognizable receipt.", Toast.LENGTH_LONG).show()
             }
         }
-    }
-
-    // Verify result from scanned receipt
-    private fun verifyResult(itemsPairingsAndTotal: Pair<List<ItemObject>, String>): Boolean {
-        val (items, total) = itemsPairingsAndTotal
-        var isValidReceipt = true
-
-        isValidReceipt = total.toDoubleOrNull() != null
-
-        var i = 0;
-        while (isValidReceipt && i < items.size) {
-            isValidReceipt = items[i].cost?.toDoubleOrNull() != null
-            i++
-        }
-
-        return isValidReceipt
     }
 
     private fun getPhotoFile(fileName: String): File {
