@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="showReceiptImage"
-        android:text="Receipt Image"
+        android:text="@string/receipt_image"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -42,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Total"
+            android:text="@string/total"
             android:textSize="24sp" />
 
         <TextView
@@ -50,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Cost"
+            android:text="@string/cost"
             android:textSize="24sp" />
     </LinearLayout>
 
