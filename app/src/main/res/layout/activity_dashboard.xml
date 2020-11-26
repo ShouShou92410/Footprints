@@ -18,26 +18,12 @@
         android:layout_marginBottom="32dp"
         android:hint="@string/button_tracker_page"
         android:onClick="trackerPage"
-        android:text="Tracker"
+        android:text="@string/button_tracker_page"
         app:layout_constraintBottom_toTopOf="@+id/locationHistoryPageButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/signOutButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_weight="1"
-        android:text="Sign out"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="435dp" />
+        app:layout_constraintTop_toBottomOf="@+id/DashboardTextView" />
 
     <Button
         android:id="@+id/locationHistoryPageButton"
@@ -50,21 +36,38 @@
         android:layout_marginBottom="32dp"
         android:hint="@string/button_location_history_page"
         android:onClick="locationHistoryPage"
-        android:text="Location History"
+        android:text="@string/button_location_history_page"
         app:layout_constraintBottom_toTopOf="@+id/signOutButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/trackerPageButton" />
+
+    <Button
+        android:id="@+id/signOutButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_weight="1"
+        android:text="@string/sign_out"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/locationHistoryPageButton" />
 
     <TextView
         android:id="@+id/DashboardTextView"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="Dashboard"
-        android:textSize="40dp"
-        android:textStyle="bold"
+        android:text="@string/dashboard"
         android:textColor="@color/design_default_color_primary"
+        android:textSize="40sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/trackerPageButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

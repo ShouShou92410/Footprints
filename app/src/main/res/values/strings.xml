@@ -12,4 +12,10 @@
     <string name="purchase_history_label">Purchase History</string>
     <string name="button_scan_receipt">Scan Receipt</string>
     <string name="receipts_scanned_label">Receipts Scanned</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="welcome">Welcome</string>
+    <string name="receipt_image">Receipt Image</string>
+    <string name="total">Total</string>
+    <string name="cost">Cost</string>
 </resources>
