@@ -16,7 +16,8 @@ object PriceExtractor {
     fun getTotalCost(bitmap: Bitmap, onSuccess: (Pair<List<ItemObject>, String>) -> Unit) {
         MLKitService.scan(bitmap) { text ->
             val pairings = findPricePairings(text)
-            val pairingsAndTotal = findTotal(pairings)
+            var pairingsAndTotal = findTotal(pairings)
+            pairingsAndTotal = Pair(removeNonItems(pairingsAndTotal.first.toMutableList()), pairingsAndTotal.second)
 
             onSuccess(pairingsAndTotal)
         }
@@ -123,6 +124,17 @@ object PriceExtractor {
             pair.cost = cleanPrice(pair.cost)
         }.toMutableList()
         return Pair(pairings, cleanPrice(total?.cost)?:"Not found")
+    }
+
+    private fun removeNonItems(pairings: MutableList<ItemObject>): MutableList<ItemObject> {
+        pairings.removeAll {
+                item ->
+            nonItems.any {
+                    nonItemName ->
+                item.cost?.contains(nonItemName)?:false || item.name?.contains(nonItemName)?:false
+            }
+        }
+        return pairings
     }
 
     private fun cleanPrice(cost: String?): String? {
